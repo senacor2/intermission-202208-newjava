@@ -5,6 +5,7 @@ import java.math.BigInteger;
 import java.time.LocalDateTime;
 import javax.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 
 @Getter
 @Setter
@@ -12,6 +13,7 @@ import lombok.*;
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
 @Entity
+@Table(name = "TRANSACTION")
 public class Transaction extends BaseEntity {
 
     private BigInteger valueInCents;
@@ -21,6 +23,7 @@ public class Transaction extends BaseEntity {
 
     private LocalDateTime transactionTime;
 
+    @Column(name = "descr")
     private String description;
 
     @ManyToOne

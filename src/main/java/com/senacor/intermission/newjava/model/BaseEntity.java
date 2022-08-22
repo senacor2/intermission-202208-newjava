@@ -2,6 +2,8 @@ package com.senacor.intermission.newjava.model;
 
 import java.math.BigInteger;
 import java.util.UUID;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
 import lombok.AccessLevel;
@@ -17,6 +19,7 @@ import org.springframework.data.domain.Persistable;
 public class BaseEntity implements Persistable<BigInteger> {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private BigInteger id;
 
     private UUID uuid = UUID.randomUUID();
