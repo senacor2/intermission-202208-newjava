@@ -43,3 +43,7 @@ management:
         exclude: ''
         include: '*'
 
+app:
+  transaction-booking:
+    delay: PT5S
+    batch-size: 10

@@ -5,7 +5,6 @@ import java.math.BigInteger;
 import java.time.LocalDateTime;
 import javax.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
 
 @Getter
 @Setter
@@ -26,10 +25,10 @@ public class Transaction extends BaseEntity {
     @Column(name = "descr")
     private String description;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private Account sender;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private Account receiver;
 
 }
