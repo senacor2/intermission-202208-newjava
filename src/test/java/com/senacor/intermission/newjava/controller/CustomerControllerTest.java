@@ -1,5 +1,7 @@
 package com.senacor.intermission.newjava.controller;
 
+import com.senacor.intermission.newjava.model.Customer;
+import com.senacor.intermission.newjava.repository.CustomerRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -7,8 +9,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-
-import java.util.UUID;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -18,6 +18,9 @@ public class CustomerControllerTest {
 
     @Autowired
     private MockMvc mvc;
+
+    @Autowired
+    private CustomerRepository customerRepository;
 
     @Test
     public void createCustomer() throws Exception {
@@ -35,7 +38,10 @@ public class CustomerControllerTest {
 
     @Test
     public void deleteCustomer() throws Exception {
-        mvc.perform(MockMvcRequestBuilders.delete("/customer/" + UUID.randomUUID())
+        Customer customer = Customer.builder().build();
+        customerRepository.save(customer);
+
+        mvc.perform(MockMvcRequestBuilders.delete("/customer/" + customer.getUuid())
                 .characterEncoding("UTF-8"))
             .andExpect(status().isOk());
     }

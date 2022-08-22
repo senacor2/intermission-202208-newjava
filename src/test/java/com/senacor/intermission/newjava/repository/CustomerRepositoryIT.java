@@ -1,18 +1,18 @@
 package com.senacor.intermission.newjava.repository;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import com.senacor.intermission.newjava.IntermissionNewJavaApplication;
-import com.senacor.intermission.newjava.model.Account;
 import com.senacor.intermission.newjava.model.Customer;
-import java.util.HashSet;
-import java.util.Set;
 import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+
+import java.util.HashSet;
+import java.util.Set;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(
@@ -39,4 +39,11 @@ public class CustomerRepositoryIT {
         cleanup.add(customer);
     }
 
+    @Test
+    void givenCustomer__getByUuid() {
+        Customer customer = Customer.builder().build();
+        uut.save(customer);
+        Assertions.assertThat(uut.getByUuid(customer.getUuid())).isEqualTo(customer);
+        cleanup.add(customer);
+    }
 }
