@@ -1,35 +1,36 @@
 package com.senacor.intermission.newjava.service;
 
+import com.senacor.intermission.newjava.exceptions.CustomerNotFoundException;
 import com.senacor.intermission.newjava.model.Customer;
 import com.senacor.intermission.newjava.repository.CustomerRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Optional;
 import java.util.UUID;
 
-@Component
+@Service
+@RequiredArgsConstructor
 public class CustomerService {
 
-    @Autowired
     private CustomerRepository customerRepository;
 
+    @Transactional(propagation = Propagation.MANDATORY)
     public Customer createCustomer(Customer customer) {
+        if (!customer.isNew()) {
+            throw new IllegalStateException("Customer is not new!");
+        }
         return customerRepository.save(customer);
     }
 
-    public boolean deleteCustomer(UUID customerId) {
-        Optional<Customer> customer = findCustomer(customerId);
-        if (customer.isPresent()) {
-            // TODO Anything else to delete?
-            customerRepository.delete(customer.get());
-            return true;
-        }
-        return false;
+    @Transactional(propagation = Propagation.MANDATORY)
+    public void deleteCustomer(Customer customer) {
+        customerRepository.delete(customer);
     }
 
-    public Optional<Customer> findCustomer(UUID customerId) {
-        Customer customer = customerRepository.getByUuid(customerId);
-        return Optional.ofNullable(customer);
+    public Customer findCustomer(UUID customerUuid) {
+        return customerRepository.findByUuid(customerUuid)
+            .orElseThrow(() -> new CustomerNotFoundException(customerUuid));
     }
 }

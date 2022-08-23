@@ -40,10 +40,10 @@ public class CustomerRepositoryIT {
     }
 
     @Test
-    void givenCustomer__getByUuid() {
+    void givenCustomer__findByUuid() {
         Customer customer = Customer.builder().build();
         uut.save(customer);
-        Assertions.assertThat(uut.getByUuid(customer.getUuid())).isEqualTo(customer);
+        Assertions.assertThat(uut.findByUuid(customer.getUuid()).get()).isEqualTo(customer);
         cleanup.add(customer);
     }
 }

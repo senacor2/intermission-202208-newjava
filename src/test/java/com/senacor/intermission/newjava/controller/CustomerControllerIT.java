@@ -11,10 +11,12 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-public class CustomerControllerTest {
+public class CustomerControllerIT {
 
     @Autowired
     private MockMvc mvc;
@@ -33,7 +35,13 @@ public class CustomerControllerTest {
                     "\"lastname\": \"Bar\", " +
                     "\"dateOfBirth\": \"1970-01-01\"" +
                     "}"))
-            .andExpect(status().isCreated());
+            .andExpect(status().isCreated())
+            .andExpect(content().json("{ " +
+                "\"prename\": \"Foo\", " +
+                "\"lastname\": \"Bar\", " +
+                "\"dateOfBirth\": \"1970-01-01\"" +
+                "}"))
+            .andExpect(jsonPath("$.uuid").exists());
     }
 
     @Test

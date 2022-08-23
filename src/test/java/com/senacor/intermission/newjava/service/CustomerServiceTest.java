@@ -1,5 +1,6 @@
 package com.senacor.intermission.newjava.service;
 
+import com.senacor.intermission.newjava.exceptions.CustomerNotFoundException;
 import com.senacor.intermission.newjava.model.Customer;
 import com.senacor.intermission.newjava.repository.CustomerRepository;
 import org.junit.jupiter.api.Test;
@@ -8,11 +9,14 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.text.MessageFormat;
 import java.time.LocalDate;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 public class CustomerServiceTest {
@@ -37,33 +41,24 @@ public class CustomerServiceTest {
 
     @Test
     public void deleteCustomer() {
-        doReturn(customer).when(customerRepository).getByUuid(customer.getUuid());
-        boolean result = customerService.deleteCustomer(customer.getUuid());
-        assertThat(result).isTrue();
-        verify(customerRepository).getByUuid(customer.getUuid());
+        customerService.deleteCustomer(customer);
         verify(customerRepository).delete(customer);
     }
 
     @Test
-    public void deleteCustomer_notFound() {
-        boolean result = customerService.deleteCustomer(customer.getUuid());
-        assertThat(result).isFalse();
-        verify(customerRepository).getByUuid(customer.getUuid());
-    }
-
-    @Test
     public void findCustomer() {
-        doReturn(customer).when(customerRepository).getByUuid(customer.getUuid());
-        Optional<Customer> result = customerService.findCustomer(customer.getUuid());
-        assertThat(result.isPresent()).isTrue();
-        verify(customerRepository).getByUuid(customer.getUuid());
+        doReturn(Optional.of(customer)).when(customerRepository).findByUuid(customer.getUuid());
+        Customer result = customerService.findCustomer(customer.getUuid());
+        assertThat(result).isEqualTo(customer);
+        verify(customerRepository).findByUuid(customer.getUuid());
     }
 
     @Test
     public void findCustomer_notFound() {
-        doReturn(null).when(customerRepository).getByUuid(customer.getUuid());
-        Optional<Customer> result = customerService.findCustomer(customer.getUuid());
-        assertThat(result.isPresent()).isFalse();
-        verify(customerRepository).getByUuid(customer.getUuid());
+        doReturn(Optional.empty()).when(customerRepository).findByUuid(customer.getUuid());
+        assertThatThrownBy(() -> customerService.findCustomer(customer.getUuid()))
+            .isInstanceOf(CustomerNotFoundException.class)
+            .hasMessage(MessageFormat.format("Customer {0} not found!", customer.getUuid()));
+        verify(customerRepository).findByUuid(customer.getUuid());
     }
 }
