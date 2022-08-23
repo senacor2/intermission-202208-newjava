@@ -18,7 +18,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(
     classes = IntermissionNewJavaApplication.class,
-    webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT
+    webEnvironment = SpringBootTest.WebEnvironment.NONE
 )
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class TransactionRepositoryIT {
@@ -36,8 +36,16 @@ public class TransactionRepositoryIT {
     @BeforeAll
     void setup() {
         this.customer = Customer.builder().build();
-        this.account1 = Account.builder().iban("iban1").customer(customer).build();
-        this.account2 = Account.builder().iban("iban2").customer(customer).build();
+        this.account1 = Account.builder()
+            .accountNumber(BigInteger.valueOf(10))
+            .iban("iban1")
+            .customer(customer)
+            .build();
+        this.account2 = Account.builder()
+            .accountNumber(BigInteger.valueOf(11))
+            .iban("iban2")
+            .customer(customer)
+            .build();
         customer.addAccount(account1);
         customer.addAccount(account2);
         customerRepository.save(customer);

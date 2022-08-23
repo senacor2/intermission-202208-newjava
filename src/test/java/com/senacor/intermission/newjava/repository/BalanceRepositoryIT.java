@@ -7,7 +7,7 @@ import com.senacor.intermission.newjava.IntermissionNewJavaApplication;
 import com.senacor.intermission.newjava.model.Account;
 import com.senacor.intermission.newjava.model.Balance;
 import com.senacor.intermission.newjava.model.Customer;
-import org.assertj.core.api.Assertions;
+import java.math.BigInteger;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +17,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(
     classes = IntermissionNewJavaApplication.class,
-    webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT
+    webEnvironment = SpringBootTest.WebEnvironment.NONE
 )
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -35,7 +35,11 @@ public class BalanceRepositoryIT {
     @BeforeAll
     void setup() {
         this.customer = Customer.builder().build();
-        this.account = Account.builder().iban("iban").customer(customer).build();
+        this.account = Account.builder()
+            .accountNumber(BigInteger.valueOf(40))
+            .iban("iban")
+            .customer(customer)
+            .build();
         customer.addAccount(account);
         customerRepository.save(customer);
     }
