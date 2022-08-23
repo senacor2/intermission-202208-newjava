@@ -1,5 +1,6 @@
 package com.senacor.intermission.newjava.handler;
 
+import com.senacor.intermission.newjava.mapper.ApiAccountMapper;
 import com.senacor.intermission.newjava.mapper.ApiCustomerMapper;
 import com.senacor.intermission.newjava.model.Account;
 import com.senacor.intermission.newjava.model.Balance;
@@ -25,31 +26,28 @@ public class CustomerHandler {
 
     private final ApiCustomerMapper apiCustomerMapper;
     private final CustomerService customerService;
+    private final ApiAccountMapper apiAccountMapper;
     private final AccountService accountService;
     private final IbanService ibanService;
 
-    // TODO Test?
     public ApiCustomer createCustomer(ApiCreateCustomer request) {
         Customer customer = apiCustomerMapper.toOwnCustomer(request);
         customerService.createCustomer(customer);
         return apiCustomerMapper.toApiCustomer(customer);
     }
 
-    // TODO Test?
     public void deleteCustomer(UUID customerUuid) {
         Customer customer = customerService.findCustomer(customerUuid);
         customerService.deleteCustomer(customer);
     }
 
-    // TODO Test?
     public Collection<UUID> getAllAccounts(UUID customerUuid) {
         Customer customer = customerService.findCustomer(customerUuid);
         return customer.getAccounts().stream()
             .map(Account::getUuid)
-            .collect(Collectors.toList());
+            .collect(Collectors.toSet());
     }
 
-    // TODO Test?
     public ApiAccount createAccount(UUID customerUuid) {
         Customer customer = customerService.findCustomer(customerUuid);
         BigInteger accountId = accountService.getNewAccountNumber();
@@ -63,7 +61,9 @@ public class CustomerHandler {
             .valueInCents(BigInteger.ZERO)
             .lastUpdate(LocalDateTime.now())
             .build();
-        accountService.createAccount(account);
-        return null;
+        account.setBalance(balance);
+        Account result = accountService.createAccount(account);
+        // TODO Do we have to add the account to the customer and to save the customer?
+        return apiAccountMapper.toApiAccount(result);
     }
 }
