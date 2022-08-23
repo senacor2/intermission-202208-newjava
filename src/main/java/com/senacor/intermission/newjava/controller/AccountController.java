@@ -1,6 +1,11 @@
 package com.senacor.intermission.newjava.controller;
 
+import com.senacor.intermission.newjava.handler.AccountHandler;
 import com.senacor.intermission.newjava.model.Account;
+import com.senacor.intermission.newjava.model.api.ApiAccount;
+import com.senacor.intermission.newjava.model.api.ApiCreateTransaction;
+import com.senacor.intermission.newjava.model.api.ApiTransaction;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -10,26 +15,42 @@ import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
-@RestController()
+@RestController("/accounts")
+@RequiredArgsConstructor
 public class AccountController {
 
-    @PostMapping(value = "/customer/{customerUuid}/account", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Account> createAccount(@PathVariable(value = "customerUuid") UUID customerUuid) {
-        // TODO Cetreate a new Account for the Customer and return its entity
-        Account account = Account.builder().build();
-        return new ResponseEntity<>(account, HttpStatus.CREATED);
+    private final AccountHandler accountHandler;
+
+    @GetMapping(
+        value = "/{uuid}",
+        produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<ApiAccount> getAccount(@PathVariable(value = "uuid") UUID accountUuid) {
+        ApiAccount result = accountHandler.getAccount(accountUuid);
+        return ResponseEntity.ok(result);
     }
 
-    @GetMapping(value = "/customer/{customerUuid}/account/{accountUuid}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Account> getAccount(@PathVariable(value = "customerUuid") UUID customerUuid,
-                                              @PathVariable(value = "accountUuid") UUID accountUuid) {
-        // TODO Find accounts by Customer UUID and Account Uuid
-        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    @GetMapping(
+        value = "/{uuid}/transactions",
+        produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<List<ApiTransaction>> getAllTransactions(
+        @PathVariable(value = "uuid") UUID accountUuid
+    ) {
+        List<ApiTransaction> result = accountHandler.getAllTransactions(accountUuid);
+        return ResponseEntity.ok(result);
     }
 
-    @GetMapping(value = "/customer/{customerUuid}/account", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<Account>> getAllAccounts(@PathVariable(value = "customerUuid") UUID customerUuid) {
-        // TODO Find accounts by Customer UUID
-        return new ResponseEntity<>(Collections.emptyList(), HttpStatus.OK);
+    @PostMapping(
+        value = "/{uuid}/transactions",
+        produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<ApiTransaction> createTransaction(
+        @PathVariable(value = "uuid") UUID accountUuid,
+        @RequestBody ApiCreateTransaction request
+    ) {
+        ApiTransaction result = accountHandler.createTransaction(accountUuid, request);
+        return new ResponseEntity<>(result, HttpStatus.CREATED);
     }
+
 }

@@ -6,10 +6,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.data.domain.Persistable;
 
 @Getter
@@ -18,12 +15,15 @@ import org.springframework.data.domain.Persistable;
 @MappedSuperclass
 public class BaseEntity implements Persistable<BigInteger> {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Setter(AccessLevel.PROTECTED)
     private BigInteger id;
-
     private UUID uuid = UUID.randomUUID();
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    public BigInteger getId() {
+        return this.id;
+    }
 
     @Override
     public boolean isNew() {
