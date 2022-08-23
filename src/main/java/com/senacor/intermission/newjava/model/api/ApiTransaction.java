@@ -14,5 +14,5 @@ public class ApiTransaction {
     private Long amountInCents;
     private LocalDateTime transactionDate;
     private String description;
-    private ApiTransactionStatus apiTransactionStatus;
+    private ApiTransactionStatus status;
 }
