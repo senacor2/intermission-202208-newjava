@@ -13,11 +13,11 @@ import lombok.*;
 @Builder
 @Entity
 @Table(name = "ACCOUNT")
-@AttributeOverride(
-    name = "id",
-    column = @Column(name = "id")
-)
+@SequenceGenerator(name = "seq_account", sequenceName = "ACCOUNT_NUMBER", allocationSize = 5)
 public class Account extends BaseEntity {
+
+    @Column(name = "acc_number")
+    private BigInteger accountNumber;
 
     private String iban;
 
@@ -34,21 +34,24 @@ public class Account extends BaseEntity {
 
     @Builder.Default
     @Setter(AccessLevel.PROTECTED)
-    @OneToMany(mappedBy = "sender", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(
+        mappedBy = "sender",
+        targetEntity = Transaction.class,
+        cascade = CascadeType.ALL,
+        orphanRemoval = true
+    )
     private Set<Transaction> sentTransactions = new HashSet<>();
 
     @Builder.Default
     @Setter(AccessLevel.PROTECTED)
-    @OneToMany(mappedBy = "receiver", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Getter
+    @OneToMany(
+        mappedBy = "receiver",
+        targetEntity = Transaction.class,
+        cascade = CascadeType.ALL,
+        orphanRemoval = true
+    )
     private Set<Transaction> receivedTransactions = new HashSet<>();
-
-    @Override
-    @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq_account")
-    @SequenceGenerator(name = "seq_account", sequenceName = "ACCOUNT_NUMBER", allocationSize = 5)
-    public BigInteger getId() {
-        return super.getId();
-    }
 
     public void addSentTransaction(Transaction transaction) {
         if (sentTransactions.add(transaction)) {

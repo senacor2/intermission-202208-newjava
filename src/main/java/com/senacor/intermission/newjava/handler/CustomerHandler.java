@@ -11,36 +11,39 @@ import com.senacor.intermission.newjava.model.api.ApiCustomer;
 import com.senacor.intermission.newjava.service.AccountService;
 import com.senacor.intermission.newjava.service.CustomerService;
 import com.senacor.intermission.newjava.service.IbanService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-
 import java.math.BigInteger;
-import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import org.springframework.transaction.annotation.Transactional;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
 public class CustomerHandler {
 
     private final ApiCustomerMapper apiCustomerMapper;
-    private final CustomerService customerService;
     private final ApiAccountMapper apiAccountMapper;
+    private final CustomerService customerService;
     private final AccountService accountService;
     private final IbanService ibanService;
 
+    @Transactional
     public ApiCustomer createCustomer(ApiCreateCustomer request) {
         Customer customer = apiCustomerMapper.toOwnCustomer(request);
         customerService.createCustomer(customer);
         return apiCustomerMapper.toApiCustomer(customer);
     }
 
+    @Transactional
     public void deleteCustomer(UUID customerUuid) {
         Customer customer = customerService.findCustomer(customerUuid);
         customerService.deleteCustomer(customer);
     }
 
+    @Transactional(readOnly = true)
     public Collection<UUID> getAllAccounts(UUID customerUuid) {
         Customer customer = customerService.findCustomer(customerUuid);
         return customer.getAccounts().stream()
@@ -48,22 +51,20 @@ public class CustomerHandler {
             .collect(Collectors.toSet());
     }
 
+    @Transactional
     public ApiAccount createAccount(UUID customerUuid) {
         Customer customer = customerService.findCustomer(customerUuid);
-        BigInteger accountId = accountService.getNewAccountNumber();
-        String iban = ibanService.generateIban(accountId);
+        BigInteger accountNumber = accountService.getNewAccountNumber();
+        String iban = ibanService.generateIban(accountNumber);
+        Balance balance = Balance.builder().valueInCents(BigInteger.ZERO).build();
         Account account = Account.builder()
+            .accountNumber(accountNumber)
             .customer(customer)
             .iban(iban)
+            .balance(balance)
             .build();
-        Balance balance = Balance.builder()
-            .account(account)
-            .valueInCents(BigInteger.ZERO)
-            .lastUpdate(LocalDateTime.now())
-            .build();
-        account.setBalance(balance);
-        Account result = accountService.createAccount(account);
-        // TODO Do we have to add the account to the customer and to save the customer?
-        return apiAccountMapper.toApiAccount(result);
+        balance.setAccount(account);
+        accountService.createAccount(account);
+        return apiAccountMapper.toApiAccount(account);
     }
 }

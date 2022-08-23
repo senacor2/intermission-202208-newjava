@@ -1,21 +1,19 @@
 package com.senacor.intermission.newjava.controller;
 
 import com.senacor.intermission.newjava.handler.AccountHandler;
-import com.senacor.intermission.newjava.model.Account;
 import com.senacor.intermission.newjava.model.api.ApiAccount;
 import com.senacor.intermission.newjava.model.api.ApiCreateTransaction;
 import com.senacor.intermission.newjava.model.api.ApiTransaction;
+import java.util.List;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.UUID;
-
-@RestController("/accounts")
+@RestController
+@RequestMapping("/accounts")
 @RequiredArgsConstructor
 public class AccountController {
 

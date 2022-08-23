@@ -3,18 +3,17 @@ package com.senacor.intermission.newjava.service;
 import com.senacor.intermission.newjava.exceptions.CustomerNotFoundException;
 import com.senacor.intermission.newjava.model.Customer;
 import com.senacor.intermission.newjava.repository.CustomerRepository;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.UUID;
-
 @Service
 @RequiredArgsConstructor
 public class CustomerService {
 
-    private CustomerRepository customerRepository;
+    private final CustomerRepository customerRepository;
 
     @Transactional(propagation = Propagation.MANDATORY)
     public Customer createCustomer(Customer customer) {

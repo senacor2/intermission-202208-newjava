@@ -1,9 +1,6 @@
 package com.senacor.intermission.newjava.service;
 
 import java.math.BigInteger;
-import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -11,13 +8,16 @@ import org.springframework.stereotype.Service;
 @Service
 public class IbanService {
 
+    private static final int PART_3_LEN = 8;
     private static final int PART_4_LEN = 10;
 
-    @Value("${app.bic}")
+    @Value("${app.bic:0}")
     private String bic;
 
     public String generateIban(BigInteger accountNumber) {
-        return "DE0000000000" + prependZeroes(accountNumber.toString(), PART_4_LEN);
+        return "DE00"
+            + prependZeroes(bic, PART_3_LEN)
+            + prependZeroes(accountNumber.toString(), PART_4_LEN);
     }
 
     private String prependZeroes(String input, int expectedLength) {

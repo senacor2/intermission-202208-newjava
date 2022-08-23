@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ApiAccount {
     private UUID uuid;
+    private String accountNumber;
     private String iban;
     private Long balanceInCents;
 }

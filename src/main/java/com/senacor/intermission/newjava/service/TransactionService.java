@@ -5,10 +5,12 @@ import com.senacor.intermission.newjava.model.Transaction;
 import com.senacor.intermission.newjava.repository.TransactionRepository;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
+@Service
 public class TransactionService {
 
     private final TransactionRepository transactionRepository;

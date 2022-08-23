@@ -5,15 +5,15 @@ import com.senacor.intermission.newjava.model.api.ApiAccount;
 import com.senacor.intermission.newjava.model.api.ApiCreateCustomer;
 import com.senacor.intermission.newjava.model.api.ApiCustomer;
 import java.util.Collection;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.UUID;
-
-@RestController("/customers")
+@RestController
+@RequestMapping("/customers")
 @RequiredArgsConstructor
 public class CustomerController {
 

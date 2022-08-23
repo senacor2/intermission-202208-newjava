@@ -13,7 +13,8 @@ public interface ApiTransactionMapper {
 
     @Mappings({
         @Mapping(target = "senderIban", source = "sender.iban"),
-        @Mapping(target = "receiverIban", source = "receiver.iban")
+        @Mapping(target = "receiverIban", source = "receiver.iban"),
+        @Mapping(target = "amountInCents", source = "valueInCents")
     })
     ApiTransaction toApiTransaction(Transaction transaction);
 

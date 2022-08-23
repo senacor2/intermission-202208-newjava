@@ -15,7 +15,7 @@ import org.springframework.data.repository.query.Param;
 public interface TransactionRepository extends JpaRepository<Transaction, BigInteger> {
 
     @Query("SELECT t FROM Transaction t WHERE t.sender=:account OR t.receiver=:account ORDER BY t.transactionTime DESC")
-    List<Transaction> findAllByAccountSortByDateDesc(Account account);
+    List<Transaction> findAllByAccountSortByDateDesc(@Param("account") Account account);
 
     @Query("SELECT t.id FROM Transaction t WHERE t.status=:status and (t.transactionTime<:time or t.transactionTime is null)")
     Page<BigInteger> findAllByStatusAndTimeBefore(
