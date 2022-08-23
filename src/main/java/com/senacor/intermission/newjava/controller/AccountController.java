@@ -6,6 +6,7 @@ import com.senacor.intermission.newjava.model.api.ApiCreateTransaction;
 import com.senacor.intermission.newjava.model.api.ApiTransaction;
 import java.util.List;
 import java.util.UUID;
+import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -23,6 +24,7 @@ public class AccountController {
         value = "/{uuid}",
         produces = MediaType.APPLICATION_JSON_VALUE
     )
+    @Valid
     public ResponseEntity<ApiAccount> getAccount(@PathVariable(value = "uuid") UUID accountUuid) {
         ApiAccount result = accountHandler.getAccount(accountUuid);
         return ResponseEntity.ok(result);
@@ -32,6 +34,7 @@ public class AccountController {
         value = "/{uuid}/transactions",
         produces = MediaType.APPLICATION_JSON_VALUE
     )
+    @Valid
     public ResponseEntity<List<ApiTransaction>> getAllTransactions(
         @PathVariable(value = "uuid") UUID accountUuid
     ) {
@@ -43,6 +46,7 @@ public class AccountController {
         value = "/{uuid}/transactions",
         produces = MediaType.APPLICATION_JSON_VALUE
     )
+    @Valid
     public ResponseEntity<ApiTransaction> createTransaction(
         @PathVariable(value = "uuid") UUID accountUuid,
         @RequestBody ApiCreateTransaction request

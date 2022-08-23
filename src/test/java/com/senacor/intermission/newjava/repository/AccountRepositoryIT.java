@@ -1,17 +1,14 @@
 package com.senacor.intermission.newjava.repository;
 
-import static org.assertj.core.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import com.senacor.intermission.newjava.IntermissionNewJavaApplication;
 import com.senacor.intermission.newjava.model.Account;
 import com.senacor.intermission.newjava.model.Customer;
+import java.math.BigInteger;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -19,7 +16,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(
     classes = IntermissionNewJavaApplication.class,
-    webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT
+    webEnvironment = SpringBootTest.WebEnvironment.NONE
 )
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -32,7 +29,7 @@ public class AccountRepositoryIT {
     CustomerRepository customerRepository;
 
     private Customer customer;
-    private String accountIban = "DE12345678901234567890";
+    private final String accountIban = "DE12345678901234567890";
 
     @BeforeAll
     void setup() {
@@ -49,6 +46,7 @@ public class AccountRepositoryIT {
     @Order(1)
     void givenAccount__save__doesNotThrow() {
         Account account = Account.builder()
+            .accountNumber(BigInteger.valueOf(20))
             .iban(accountIban)
             .customer(customer)
             .build();
