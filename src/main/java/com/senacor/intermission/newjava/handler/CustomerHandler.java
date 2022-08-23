@@ -25,7 +25,6 @@ public class CustomerHandler {
 
     private final ApiCustomerMapper apiCustomerMapper;
     private final CustomerService customerService;
-    private final ApiAccountMapper apiAccountMapper;
     private final AccountService accountService;
     private final IbanService ibanService;
 
