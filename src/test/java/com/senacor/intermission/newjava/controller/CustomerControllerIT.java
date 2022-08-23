@@ -1,32 +1,33 @@
 package com.senacor.intermission.newjava.controller;
 
-import com.senacor.intermission.newjava.model.Customer;
-import com.senacor.intermission.newjava.repository.CustomerRepository;
-import org.junit.jupiter.api.Test;
+import com.jayway.jsonpath.JsonPath;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class CustomerControllerIT {
 
     @Autowired
     private MockMvc mvc;
 
-    @Autowired
-    private CustomerRepository customerRepository;
+    private String customerUuid;
+    private String accountUuid;
 
     @Test
+    @Order(1)
     public void createCustomer() throws Exception {
-        mvc.perform(MockMvcRequestBuilders.post("/customer/")
+        MvcResult result = mvc.perform(MockMvcRequestBuilders.post("/customers")
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .characterEncoding("UTF-8")
@@ -41,15 +42,39 @@ public class CustomerControllerIT {
                 "\"lastname\": \"Bar\", " +
                 "\"dateOfBirth\": \"1970-01-01\"" +
                 "}"))
-            .andExpect(jsonPath("$.uuid").exists());
+            .andExpect(jsonPath("$.uuid").exists())
+            .andReturn();
+        customerUuid = JsonPath.read(result.getResponse().getContentAsString(), "$.uuid");
     }
 
     @Test
-    public void deleteCustomer() throws Exception {
-        Customer customer = Customer.builder().build();
-        customerRepository.save(customer);
+    @Order(2)
+    public void createAccount() throws Exception {
+        MvcResult result = mvc.perform(MockMvcRequestBuilders.post("/customers/" + customerUuid
+                    + "/accounts")
+                .characterEncoding("UTF-8"))
+            .andExpect(status().isCreated())
+            .andExpect(jsonPath("$.iban").exists())
+            .andExpect(jsonPath("$.uuid").exists())
+            .andExpect(jsonPath("$.balanceInCents").value("0"))
+            .andReturn();
+        accountUuid = JsonPath.read(result.getResponse().getContentAsString(), "$.uuid");
+    }
 
-        mvc.perform(MockMvcRequestBuilders.delete("/customer/" + customer.getUuid())
+    @Test
+    @Order(3)
+    public void getAccounts() throws Exception {
+        mvc.perform(MockMvcRequestBuilders.get("/customers/" + customerUuid
+                    + "/accounts")
+                .characterEncoding("UTF-8"))
+            .andExpect(status().isOk())
+            .andExpect(content().json("[" + accountUuid + "]"));
+    }
+
+    @Test
+    @Order(4)
+    public void deleteCustomer() throws Exception {
+        mvc.perform(MockMvcRequestBuilders.delete("/customers/" + customerUuid)
                 .characterEncoding("UTF-8"))
             .andExpect(status().isOk());
     }

@@ -17,6 +17,7 @@ import java.math.BigInteger;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -45,7 +46,8 @@ public class CustomerHandler {
     public Collection<UUID> getAllAccounts(UUID customerUuid) {
         Customer customer = customerService.findCustomer(customerUuid);
         return customer.getAccounts().stream()
-            .map(apiAccountMapper::toApiAccount);
+            .map(Account::getUuid)
+            .collect(Collectors.toList());
     }
 
     // TODO Test?
@@ -53,7 +55,6 @@ public class CustomerHandler {
         Customer customer = customerService.findCustomer(customerUuid);
         BigInteger accountId = accountService.getNewAccountNumber();
         String iban = ibanService.generateIban(accountId);
-        // TODO Mapper aufrufen
         Account account = Account.builder()
             .customer(customer)
             .iban(iban)
