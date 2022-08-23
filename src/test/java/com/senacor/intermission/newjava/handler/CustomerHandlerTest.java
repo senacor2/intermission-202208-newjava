@@ -1,5 +1,7 @@
 package com.senacor.intermission.newjava.handler;
 
+import com.senacor.intermission.newjava.mapper.ApiAccountMapper;
+import com.senacor.intermission.newjava.mapper.ApiAccountMapperImpl;
 import com.senacor.intermission.newjava.mapper.ApiCustomerMapper;
 import com.senacor.intermission.newjava.mapper.ApiCustomerMapperImpl;
 import com.senacor.intermission.newjava.model.Account;
@@ -21,6 +23,8 @@ import java.util.Set;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.in;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.verify;
@@ -37,6 +41,8 @@ public class CustomerHandlerTest {
     private IbanService ibanService;
     @Spy
     private ApiCustomerMapper apiCustomerMapper = new ApiCustomerMapperImpl();
+    @Spy
+    private ApiAccountMapper apiAccountMapper = new ApiAccountMapperImpl();
 
     @Captor
     private ArgumentCaptor<Account> accountCaptor;
@@ -84,6 +90,11 @@ public class CustomerHandlerTest {
         BigInteger accountNumber = BigInteger.valueOf(4711);
         doReturn(accountNumber).when(accountService).getNewAccountNumber();
         String iban = "DE47111122220123456789";
+        doReturn(iban).when(ibanService).generateIban(accountNumber);
+        doAnswer(invocation -> {
+            Account account = invocation.getArgument(0);
+            return account;
+        }).when(accountService).createAccount(any());
 
         ApiAccount result = customerHandler.createAccount(customerUuid);
         assertThat(result.getBalanceInCents()).isEqualTo(0L);
@@ -96,7 +107,7 @@ public class CustomerHandlerTest {
 
         Account createdAccount = accountCaptor.getValue();
         assertThat(createdAccount.getCustomer()).isEqualTo(customer);
-        assertThat(createdAccount.getId()).isEqualTo(accountNumber);
+        assertThat(createdAccount.getAccountNumber()).isEqualTo(accountNumber);
         assertThat(createdAccount.getIban()).isEqualTo(iban);
         assertThat(createdAccount.getBalance().getValueInCents()).isEqualTo(BigInteger.ZERO);
     }

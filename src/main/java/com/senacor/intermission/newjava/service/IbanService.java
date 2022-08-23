@@ -23,7 +23,7 @@ public class IbanService {
     private String prependZeroes(String input, int expectedLength) {
         if (input.length() > expectedLength) throw new IllegalArgumentException();
         StringBuilder sb = new StringBuilder(expectedLength);
-        Stream.of("0").limit(expectedLength - input.length()).forEach(sb::append);
+        Stream.iterate("0", z -> z).limit(expectedLength - input.length()).forEach(sb::append);
         sb.append(input);
         return sb.toString();
     }

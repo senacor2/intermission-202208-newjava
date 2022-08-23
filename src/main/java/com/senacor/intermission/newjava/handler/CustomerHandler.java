@@ -11,14 +11,14 @@ import com.senacor.intermission.newjava.model.api.ApiCustomer;
 import com.senacor.intermission.newjava.service.AccountService;
 import com.senacor.intermission.newjava.service.CustomerService;
 import com.senacor.intermission.newjava.service.IbanService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.math.BigInteger;
 import java.util.Collection;
 import java.util.UUID;
 import java.util.stream.Collectors;
-import org.springframework.transaction.annotation.Transactional;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -64,7 +64,7 @@ public class CustomerHandler {
             .balance(balance)
             .build();
         balance.setAccount(account);
-        accountService.createAccount(account);
-        return apiAccountMapper.toApiAccount(account);
+        Account result = accountService.createAccount(account);
+        return apiAccountMapper.toApiAccount(result);
     }
 }

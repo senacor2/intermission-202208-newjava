@@ -54,6 +54,7 @@ public class CustomerControllerIT {
                     + "/accounts")
                 .characterEncoding("UTF-8"))
             .andExpect(status().isCreated())
+            .andExpect(jsonPath("$.accountNumber").exists())
             .andExpect(jsonPath("$.iban").exists())
             .andExpect(jsonPath("$.uuid").exists())
             .andExpect(jsonPath("$.balanceInCents").value("0"))
@@ -76,6 +77,6 @@ public class CustomerControllerIT {
     public void deleteCustomer() throws Exception {
         mvc.perform(MockMvcRequestBuilders.delete("/customers/" + customerUuid)
                 .characterEncoding("UTF-8"))
-            .andExpect(status().isOk());
+            .andExpect(status().isNoContent());
     }
 }
