@@ -4,6 +4,7 @@ import com.senacor.intermission.newjava.model.Account;
 import com.senacor.intermission.newjava.model.Transaction;
 import com.senacor.intermission.newjava.repository.TransactionRepository;
 import java.util.List;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -17,6 +18,11 @@ public class TransactionService {
 
     public List<Transaction> getTransactions(Account account) {
         return transactionRepository.findAllByAccountSortByDateDesc(account);
+    }
+
+    public Transaction getTransaction(UUID transactionUuid) {
+        return transactionRepository.findByUuid(transactionUuid)
+            .orElseThrow(() -> new IllegalArgumentException("Transaction not found!"));
     }
 
     @Transactional(propagation = Propagation.MANDATORY)

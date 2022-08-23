@@ -55,4 +55,17 @@ public class AccountController {
         return new ResponseEntity<>(result, HttpStatus.CREATED);
     }
 
+    @PostMapping(
+        value = "/{uuid}/transactions/instant",
+        produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    @Valid
+    public ResponseEntity<ApiTransaction> createInstantTransaction(
+        @PathVariable(value = "uuid") UUID accountUuid,
+        @RequestBody ApiCreateTransaction request
+    ) {
+        ApiTransaction result = accountHandler.createInstantTransaction(accountUuid, request);
+        return new ResponseEntity<>(result, HttpStatus.CREATED);
+    }
+
 }
