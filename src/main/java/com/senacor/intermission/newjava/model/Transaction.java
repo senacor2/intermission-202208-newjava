@@ -1,9 +1,9 @@
 package com.senacor.intermission.newjava.model;
 
 import com.senacor.intermission.newjava.model.enums.TransactionStatus;
+import jakarta.persistence.*;
 import java.math.BigInteger;
 import java.time.LocalDateTime;
-import javax.persistence.*;
 import lombok.*;
 
 @Getter
