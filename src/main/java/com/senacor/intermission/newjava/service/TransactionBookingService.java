@@ -6,26 +6,20 @@ import com.senacor.intermission.newjava.model.Transaction;
 import com.senacor.intermission.newjava.model.enums.TransactionStatus;
 import com.senacor.intermission.newjava.repository.BalanceRepository;
 import com.senacor.intermission.newjava.repository.TransactionRepository;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.LockModeType;
-import jakarta.persistence.PersistenceContext;
 import java.math.BigInteger;
 import java.time.Clock;
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.reactivestreams.Publisher;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.TransactionDefinition;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.TransactionOperations;
-import org.springframework.transaction.support.TransactionTemplate;
+import org.springframework.transaction.reactive.TransactionalOperator;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 @Service
 @RequiredArgsConstructor
@@ -33,44 +27,49 @@ import org.springframework.transaction.support.TransactionTemplate;
 public class TransactionBookingService {
 
     private final Clock clock;
-    private final PlatformTransactionManager platformTransactionManager;
+    private final TransactionalOperator transactionalOperator;
     private final TransactionRepository transactionRepository;
     private final BalanceRepository balanceRepository;
-
-    @PersistenceContext
-    private EntityManager entityManager;
 
     @Value("${app.transaction-booking.batch-size}")
     private int batchSize;
 
     @Scheduled(fixedDelayString = "${app.transaction-booking.delay}")
-    @Transactional(propagation = Propagation.NEVER)
     public void bookPendingTransactions() {
         log.debug("Started booking transactions...");
-        Page<BigInteger> transactions = transactionRepository.findAllByStatusAndTimeBefore(
+        Flux<BigInteger> transactions = transactionRepository.findAllByStatusAndTimeBefore(
             TransactionStatus.PENDING,
             LocalDateTime.now(clock),
             PageRequest.of(0, batchSize, Sort.Direction.ASC, "id")
         );
-        log.debug("Found {} transactions to book...", transactions.getNumberOfElements());
-        for (BigInteger transactionId : transactions) {
-            try {
-                prepareNestedDbTransaction()
-                    .executeWithoutResult(ignored -> bookSingleTransaction(transactionId));
-            } catch (RuntimeException ex) {
-                log.warn("Booking of transaction {} failed!", transactionId, ex);
-            }
+        Long count = transactions
+            .flatMap(it -> transactionalOperator.execute(ignored -> bookSingleTransactionAsync(it)))
+            .doOnError(ex -> log.warn("Booking of transaction failed!", ex))
+            .count()
+            .block();
+        log.debug("Done booking {} transactions.", count);
+    }
+
+    private Publisher<Boolean> bookSingleTransactionAsync(BigInteger transactionId) {
+        try {
+            bookSingleTransaction(transactionId);
+            return Mono.just(true);
+        } catch (RuntimeException ex) {
+            return Mono.error(ex);
         }
-        log.debug("Done booking {} transactions.", transactions.getNumberOfElements());
     }
 
     private void bookSingleTransaction(BigInteger transactionId) {
         Transaction transaction = transactionRepository.findById(transactionId)
+            .blockOptional()
             .orElseThrow(TransactionBookingFailedException::new);
-        entityManager.lock(transaction, LockModeType.PESSIMISTIC_WRITE);
 
-        Balance senderBalance = balanceRepository.getByAccount(transaction.getSender());
-        Balance receiverBalance = balanceRepository.getByAccount(transaction.getReceiver());
+        Balance senderBalance = balanceRepository.getByAccountId(transaction.getSenderId())
+            .blockOptional()
+            .orElseThrow(TransactionBookingFailedException::new);
+        Balance receiverBalance = balanceRepository.getByAccountId(transaction.getReceiverId())
+            .blockOptional()
+            .orElseThrow(TransactionBookingFailedException::new);
 
         BigInteger transactionAmount = transaction.getValueInCents();
         BigInteger senderBalanceAmountNew = senderBalance.getValueInCents().subtract(transactionAmount);
@@ -89,13 +88,12 @@ public class TransactionBookingService {
         receiverBalance.setValueInCents(receiverBalanceAmountNew);
         transaction.setStatus(TransactionStatus.BOOKED);
         transaction.setTransactionTime(LocalDateTime.now(clock));
-    }
 
-    private TransactionOperations prepareNestedDbTransaction() {
-        TransactionTemplate tx = new TransactionTemplate(platformTransactionManager);
-        tx.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
-        tx.setReadOnly(false);
-        return tx;
+
+        transactionRepository.save(transaction)
+            .and(balanceRepository.save(senderBalance))
+            .and(balanceRepository.save(receiverBalance))
+            .block();
     }
 
 

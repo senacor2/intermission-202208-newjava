@@ -1,30 +1,17 @@
 package com.senacor.intermission.newjava.controller;
 
-import com.senacor.intermission.newjava.model.Account;
-import com.senacor.intermission.newjava.model.Balance;
-import com.senacor.intermission.newjava.model.Customer;
-import com.senacor.intermission.newjava.repository.AccountRepository;
-import com.senacor.intermission.newjava.repository.CustomerRepository;
-import org.junit.jupiter.api.*;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-
-import java.math.BigInteger;
-import java.time.LocalDateTime;
-
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @AutoConfigureMockMvc
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class AccountControllerIT {
-
+/*
     @Autowired
     private MockMvc mvc;
     @Autowired
@@ -161,5 +148,5 @@ public class AccountControllerIT {
             .andExpect(status().isOk())
             .andExpect(jsonPath("$[0].description").exists())
             .andExpect(jsonPath("$[1].description").exists());
-    }
+    }*/
 }

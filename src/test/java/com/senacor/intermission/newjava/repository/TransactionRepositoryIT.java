@@ -1,17 +1,8 @@
 package com.senacor.intermission.newjava.repository;
 
 import com.senacor.intermission.newjava.IntermissionNewJavaApplication;
-import com.senacor.intermission.newjava.model.Account;
-import com.senacor.intermission.newjava.model.Customer;
-import com.senacor.intermission.newjava.model.Transaction;
-import java.math.BigInteger;
-import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
@@ -22,7 +13,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 )
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class TransactionRepositoryIT {
-
+/*
     @Autowired
     TransactionRepository uut;
 
@@ -64,6 +55,6 @@ public class TransactionRepositoryIT {
             .receiver(account2)
             .build();
         Assertions.assertThatCode(() -> uut.save(transaction)).doesNotThrowAnyException();
-    }
+    }*/
 
 }

@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import reactor.core.publisher.Mono;
 
 @Service
 @RequiredArgsConstructor
@@ -16,7 +17,7 @@ public class CustomerService {
     private final CustomerRepository customerRepository;
 
     @Transactional(propagation = Propagation.MANDATORY)
-    public Customer createCustomer(Customer customer) {
+    public Mono<Customer> createCustomer(Customer customer) {
         if (!customer.isNew()) {
             throw new IllegalStateException("Customer is not new!");
         }
@@ -24,12 +25,12 @@ public class CustomerService {
     }
 
     @Transactional(propagation = Propagation.MANDATORY)
-    public void deleteCustomer(Customer customer) {
-        customerRepository.delete(customer);
+    public Mono<Void> deleteCustomer(Customer customer) {
+        return customerRepository.delete(customer);
     }
 
-    public Customer findCustomer(UUID customerUuid) {
+    public Mono<Customer> findCustomer(UUID customerUuid) {
         return customerRepository.findByUuid(customerUuid)
-            .orElseThrow(() -> new CustomerNotFoundException(customerUuid));
+            .switchIfEmpty(Mono.error(new CustomerNotFoundException(customerUuid)));
     }
 }

@@ -1,26 +1,11 @@
 package com.senacor.intermission.newjava.service;
 
-import com.senacor.intermission.newjava.exceptions.CustomerNotFoundException;
-import com.senacor.intermission.newjava.model.Customer;
-import com.senacor.intermission.newjava.repository.CustomerRepository;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.text.MessageFormat;
-import java.time.LocalDate;
-import java.util.Optional;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 public class CustomerServiceTest {
-
+/*
     @InjectMocks
     private CustomerService customerService;
 
@@ -60,5 +45,5 @@ public class CustomerServiceTest {
             .isInstanceOf(CustomerNotFoundException.class)
             .hasMessage(MessageFormat.format("Customer {0} not found!", customer.getUuid()));
         verify(customerRepository).findByUuid(customer.getUuid());
-    }
+    }*/
 }

@@ -1,15 +1,10 @@
 package com.senacor.intermission.newjava.repository;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import com.senacor.intermission.newjava.IntermissionNewJavaApplication;
-import com.senacor.intermission.newjava.model.Account;
-import com.senacor.intermission.newjava.model.Customer;
-import java.math.BigInteger;
-import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
@@ -21,7 +16,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class AccountRepositoryIT {
-
+/*
     @Autowired
     AccountRepository uut;
 
@@ -67,5 +62,5 @@ public class AccountRepositoryIT {
     void givenUnknownIban__findByIban__returnsEmpty() {
         assertThat(uut.findByIban("unknown"))
             .isEmpty();
-    }
+    }*/
 }

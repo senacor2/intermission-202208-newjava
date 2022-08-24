@@ -6,27 +6,22 @@ import com.senacor.intermission.newjava.model.api.ApiCreateTransaction;
 import com.senacor.intermission.newjava.model.api.ApiTransaction;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.mapstruct.Mappings;
 
 @Mapper(componentModel = "spring")
 public interface ApiTransactionMapper {
 
-    @Mappings({
-        @Mapping(target = "senderIban", source = "sender.iban"),
-        @Mapping(target = "receiverIban", source = "receiver.iban"),
-        @Mapping(target = "amountInCents", source = "valueInCents"),
-        @Mapping(target = "transactionDate", source = "transactionTime")
-    })
-    ApiTransaction toApiTransaction(Transaction transaction);
+    @Mapping(target = "senderIban", source = "sender.iban")
+    @Mapping(target = "receiverIban", source = "receiver.iban")
+    @Mapping(target = "amountInCents", source = "transaction.valueInCents")
+    @Mapping(target = "transactionDate", source = "transaction.transactionTime")
+    ApiTransaction toApiTransaction(Transaction transaction, Account sender, Account receiver);
 
-    @Mappings({
-        @Mapping(target = "valueInCents", source = "request.amountInCents"),
-        @Mapping(target = "status", constant = "PENDING"),
-        @Mapping(target = "transactionTime", source = "request.transactionDate"),
-        @Mapping(target = "description", source = "request.description"),
-        @Mapping(target = "sender", source = "sender"),
-        @Mapping(target = "receiver", source = "receiver")
-    })
+    @Mapping(target = "valueInCents", source = "request.amountInCents")
+    @Mapping(target = "status", constant = "PENDING")
+    @Mapping(target = "transactionTime", source = "request.transactionDate")
+    @Mapping(target = "description", source = "request.description")
+    @Mapping(target = "senderId", source = "sender.id")
+    @Mapping(target = "receiverId", source = "receiver.id")
     Transaction createTransaction(ApiCreateTransaction request, Account sender, Account receiver);
 
 }

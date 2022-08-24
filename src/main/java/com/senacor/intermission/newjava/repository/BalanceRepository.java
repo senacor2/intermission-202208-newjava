@@ -2,25 +2,26 @@ package com.senacor.intermission.newjava.repository;
 
 import com.senacor.intermission.newjava.model.Account;
 import com.senacor.intermission.newjava.model.Balance;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
-
 import java.math.BigInteger;
+import org.springframework.data.r2dbc.repository.Modifying;
+import org.springframework.data.r2dbc.repository.Query;
+import org.springframework.data.r2dbc.repository.R2dbcRepository;
+import org.springframework.data.repository.query.Param;
+import reactor.core.publisher.Mono;
 
-public interface BalanceRepository extends JpaRepository<Balance, BigInteger> {
+public interface BalanceRepository extends R2dbcRepository<Balance, BigInteger> {
 
-    Balance getByAccountIban(String iban);
+    @Query("SELECT b.* FROM BALANCE b JOIN ACCOUNT A on A.ID = b.ACCOUNT_ID WHERE a.IBAN=:iban")
+    Mono<Balance> getByAccountIban(@Param("iban") String iban);
 
-    Balance getByAccount(Account account);
+    Mono<Balance> getByAccountId(BigInteger accountId);
 
     @Modifying
     @Query("""
-        UPDATE Balance b
-           SET b.valueInCents=b.valueInCents+:amount
-         WHERE b.account=:account""")
-    int updateByAccountIbanIncrementBalance(
+        UPDATE BALANCE b
+           SET b.VALUE_IN_CENTS=b.VALUE_IN_CENTS+:amount
+         WHERE b.ACCOUNT_ID=:account""")
+    Mono<Integer> updateByAccountIbanIncrementBalance(
         @Param("account") Account account,
         @Param("amount") BigInteger incrementAmount
     );

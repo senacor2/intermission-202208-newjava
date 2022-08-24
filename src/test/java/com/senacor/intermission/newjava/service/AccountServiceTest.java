@@ -1,27 +1,11 @@
 package com.senacor.intermission.newjava.service;
 
-import com.senacor.intermission.newjava.exceptions.AccountNotFoundException;
-import com.senacor.intermission.newjava.model.Account;
-import com.senacor.intermission.newjava.repository.AccountRepository;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.math.BigInteger;
-import java.text.MessageFormat;
-import java.util.Optional;
-import java.util.UUID;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.catchThrowable;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 public class AccountServiceTest {
-
+/*
     @InjectMocks
     AccountService accountService;
     @Mock
@@ -69,5 +53,5 @@ public class AccountServiceTest {
         Optional<Account> result = accountService.getAccountByIban("iban");
         assertThat(result.get()).isEqualTo(account);
         verify(accountRepository).findByIban("iban");
-    }
+    }*/
 }
