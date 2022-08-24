@@ -108,6 +108,22 @@ public class AccountControllerIT {
 
     @Test
     @Order(3)
+    public void createTransaction_invalidRequest() throws Exception {
+        mvc.perform(MockMvcRequestBuilders.post("/accounts/" + account1.getUuid()
+                    + "/transactions")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .characterEncoding("UTF-8")
+                .content("{ " +
+                    "\"amountInCents\": 4999," +
+                    "\"description\": \"Almost 50 Euros\"," +
+                    "\"transactionDate\": \"" + LocalDateTime.now() + "\"" +
+                    "}"))
+            .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @Order(4)
     public void createInstantTransaction() throws Exception {
         mvc.perform(MockMvcRequestBuilders.post("/accounts/" + account1.getUuid()
                     + "/transactions/instant")
@@ -130,7 +146,7 @@ public class AccountControllerIT {
     }
 
     @Test
-    @Order(4)
+    @Order(5)
     public void getAllTransactions() throws Exception {
         mvc.perform(MockMvcRequestBuilders.get("/accounts/" + account1.getUuid()
                     + "/transactions")

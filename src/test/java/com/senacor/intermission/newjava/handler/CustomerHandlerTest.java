@@ -46,7 +46,7 @@ public class CustomerHandlerTest {
 
     @Test
     public void createCustomer() {
-        ApiCreateCustomer createRequest = new ApiCreateCustomer();
+        ApiCreateCustomer createRequest = new ApiCreateCustomer(null, null, null);
         ApiCustomer result = customerHandler.createCustomer(createRequest);
         assertThat(result).isNotNull();
         verify(customerService).createCustomer(any());
@@ -94,8 +94,8 @@ public class CustomerHandlerTest {
         }).when(accountService).createAccount(any());
 
         ApiAccount result = customerHandler.createAccount(customerUuid);
-        assertThat(result.getBalanceInCents()).isEqualTo(0L);
-        assertThat(result.getIban()).isEqualTo(iban);
+        assertThat(result.balanceInCents()).isEqualTo(0L);
+        assertThat(result.iban()).isEqualTo(iban);
 
         verify(customerService).findCustomer(customerUuid);
         verify(accountService).getNewAccountNumber();

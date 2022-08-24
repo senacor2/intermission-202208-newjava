@@ -49,7 +49,7 @@ public class AccountController {
     @Valid
     public ResponseEntity<ApiTransaction> createTransaction(
         @PathVariable(value = "uuid") UUID accountUuid,
-        @RequestBody ApiCreateTransaction request
+        @Valid @RequestBody ApiCreateTransaction request
     ) {
         ApiTransaction result = accountHandler.createTransaction(accountUuid, request);
         return new ResponseEntity<>(result, HttpStatus.CREATED);
@@ -62,10 +62,9 @@ public class AccountController {
     @Valid
     public ResponseEntity<ApiTransaction> createInstantTransaction(
         @PathVariable(value = "uuid") UUID accountUuid,
-        @RequestBody ApiCreateTransaction request
+        @Valid @RequestBody ApiCreateTransaction request
     ) {
         ApiTransaction result = accountHandler.createInstantTransaction(accountUuid, request);
         return new ResponseEntity<>(result, HttpStatus.CREATED);
     }
-
 }

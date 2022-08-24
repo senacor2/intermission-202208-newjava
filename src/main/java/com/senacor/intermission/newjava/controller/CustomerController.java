@@ -22,7 +22,7 @@ public class CustomerController {
 
     @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     @Valid
-    public ResponseEntity<ApiCustomer> createCustomer(@RequestBody ApiCreateCustomer request) {
+    public ResponseEntity<ApiCustomer> createCustomer(@Valid @RequestBody ApiCreateCustomer request) {
         ApiCustomer result = customerHandler.createCustomer(request);
         return new ResponseEntity<>(result, HttpStatus.CREATED);
     }

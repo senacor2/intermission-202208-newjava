@@ -49,6 +49,20 @@ public class CustomerControllerIT {
 
     @Test
     @Order(2)
+    public void createCustomer_invalidData() throws Exception {
+        mvc.perform(MockMvcRequestBuilders.post("/customers")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .characterEncoding("UTF-8")
+                .content("{ " +
+                    "\"prename\": \"t\", " +
+                    "\"lastname\": \"s\"" +
+                    "}"))
+            .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @Order(3)
     public void createAccount() throws Exception {
         MvcResult result = mvc.perform(MockMvcRequestBuilders.post("/customers/" + customerUuid
                     + "/accounts")
@@ -63,7 +77,7 @@ public class CustomerControllerIT {
     }
 
     @Test
-    @Order(3)
+    @Order(4)
     public void getAccounts() throws Exception {
         mvc.perform(MockMvcRequestBuilders.get("/customers/" + customerUuid
                     + "/accounts")
@@ -73,7 +87,7 @@ public class CustomerControllerIT {
     }
 
     @Test
-    @Order(4)
+    @Order(5)
     public void deleteCustomer() throws Exception {
         mvc.perform(MockMvcRequestBuilders.delete("/customers/" + customerUuid)
                 .characterEncoding("UTF-8"))
