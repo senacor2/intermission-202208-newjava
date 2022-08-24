@@ -1,9 +1,9 @@
 package com.senacor.intermission.newjava.model;
 
+import jakarta.persistence.*;
 import java.math.BigInteger;
 import java.util.HashSet;
 import java.util.Set;
-import javax.persistence.*;
 import lombok.*;
 
 @Getter
