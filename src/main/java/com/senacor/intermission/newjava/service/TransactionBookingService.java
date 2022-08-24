@@ -56,7 +56,7 @@ public class TransactionBookingService {
         for (BigInteger transactionId : transactions) {
             try {
                 prepareNestedDbTransaction()
-                    .executeWithoutResult(ignored -> bookSingeTransaction(transactionId));
+                    .executeWithoutResult(ignored -> bookSingleTransaction(transactionId));
             } catch (RuntimeException ex) {
                 log.warn("Booking of transaction {} failed!", transactionId, ex);
             }
@@ -64,7 +64,7 @@ public class TransactionBookingService {
         log.debug("Done booking {} transactions.", transactions.getNumberOfElements());
     }
 
-    private void bookSingeTransaction(BigInteger transactionId) {
+    private void bookSingleTransaction(BigInteger transactionId) {
         Transaction transaction = transactionRepository.findById(transactionId)
             .orElseThrow(TransactionBookingFailedException::new);
         entityManager.lock(transaction, LockModeType.PESSIMISTIC_WRITE);

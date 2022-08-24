@@ -15,9 +15,12 @@ public class IbanService {
     private String bic;
 
     public String generateIban(BigInteger accountNumber) {
-        return "DE00"
-            + prependZeroes(bic, PART_3_LEN)
+        String accountPart = prependZeroes(bic, PART_3_LEN)
             + prependZeroes(accountNumber.toString(), PART_4_LEN);
+        // Simplified checksum algorithm (will lead to invalid IBANs).
+        BigInteger checksum = new BigInteger(accountPart).mod(BigInteger.valueOf(97));
+        return "DE" + prependZeroes(checksum.toString(), 2)
+            + accountPart;
     }
 
     private String prependZeroes(String input, int expectedLength) {
@@ -27,6 +30,4 @@ public class IbanService {
         sb.append(input);
         return sb.toString();
     }
-
-
 }

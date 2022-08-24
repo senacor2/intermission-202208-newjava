@@ -14,7 +14,8 @@ public interface ApiTransactionMapper {
     @Mappings({
         @Mapping(target = "senderIban", source = "sender.iban"),
         @Mapping(target = "receiverIban", source = "receiver.iban"),
-        @Mapping(target = "amountInCents", source = "valueInCents")
+        @Mapping(target = "amountInCents", source = "valueInCents"),
+        @Mapping(target = "transactionDate", source = "transactionTime")
     })
     ApiTransaction toApiTransaction(Transaction transaction);
 

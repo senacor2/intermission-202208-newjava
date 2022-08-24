@@ -17,6 +17,6 @@ public class IbanServiceTest {
 
         BigInteger accountNumber = BigInteger.valueOf(4711);
         String iban = ibanService.generateIban(accountNumber);
-        assertThat(iban).isEqualTo("DE00" + "12345678" + "0000004711");
+        assertThat(iban).isEqualTo("DE08" + "12345678" + "0000004711");
     }
 }

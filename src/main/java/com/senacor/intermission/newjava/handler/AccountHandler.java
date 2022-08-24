@@ -78,5 +78,4 @@ public class AccountHandler {
         Transaction transaction = apiTransactionMapper.createTransaction(request, senderAccount, receiverAccount);
         return transactionService.createTransaction(transaction);
     }
-
 }

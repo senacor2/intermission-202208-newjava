@@ -14,9 +14,10 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.math.BigInteger;
-import java.util.UUID;
+import java.time.LocalDateTime;
 
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -46,7 +47,7 @@ public class AccountControllerIT {
             .build();
         Balance balance = Balance.builder()
             .account(account1)
-            .valueInCents(BigInteger.ZERO).build();
+            .valueInCents(BigInteger.valueOf(20000)).build();
         account1.setBalance(balance);
         accountRepository.save(account1);
 
@@ -58,7 +59,7 @@ public class AccountControllerIT {
         balance = Balance.builder()
             .account(account2)
             .valueInCents(BigInteger.ZERO).build();
-        account1.setBalance(balance);
+        account2.setBalance(balance);
         accountRepository.save(account2);
 
     }
@@ -79,7 +80,7 @@ public class AccountControllerIT {
             .andExpect(jsonPath("$.accountNumber").value(account1.getAccountNumber().longValue()))
             .andExpect(jsonPath("$.iban").value(account1.getIban()))
             .andExpect(jsonPath("$.uuid").value(account1.getUuid().toString()))
-            .andExpect(jsonPath("$.balanceInCents").value("0"));
+            .andExpect(jsonPath("$.balanceInCents").value("20000"));
     }
 
     @Test
@@ -93,25 +94,50 @@ public class AccountControllerIT {
                 .content("{ " +
                     "\"amountInCents\": 4999," +
                     "\"description\": \"Almost 50 Euros\"," +
-                    "\"receiverIban\": \"" + account2.getIban() + "\"" +
+                    "\"receiverIban\": \"" + account2.getIban() + "\"," +
+                    "\"transactionDate\": \"" + LocalDateTime.now() + "\"" +
                     "}"))
             .andExpect(status().isCreated())
             .andExpect(jsonPath("$.senderIban").value(account1.getIban()))
             .andExpect(jsonPath("$.receiverIban").value(account2.getIban()))
             .andExpect(jsonPath("$.amountInCents").value("4999"))
-            // TODO transactionDate seems not to be set
-            //.andExpect(jsonPath("$.transactionDate").exists())
+            .andExpect(jsonPath("$.transactionDate").exists())
             .andExpect(jsonPath("$.description").value("Almost 50 Euros"))
             .andExpect(jsonPath("$.status").value("PENDING"));
     }
 
     @Test
+    @Order(3)
+    public void createInstantTransaction() throws Exception {
+        mvc.perform(MockMvcRequestBuilders.post("/accounts/" + account1.getUuid()
+                    + "/transactions/instant")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .characterEncoding("UTF-8")
+                .content("{ " +
+                    "\"amountInCents\": 5999," +
+                    "\"description\": \"ASAP\"," +
+                    "\"receiverIban\": \"" + account2.getIban() + "\"," +
+                    "\"transactionDate\": \"" + LocalDateTime.now() + "\"" +
+                    "}"))
+            .andExpect(status().isCreated())
+            .andExpect(jsonPath("$.senderIban").value(account1.getIban()))
+            .andExpect(jsonPath("$.receiverIban").value(account2.getIban()))
+            .andExpect(jsonPath("$.amountInCents").value("5999"))
+            .andExpect(jsonPath("$.transactionDate").exists())
+            .andExpect(jsonPath("$.description").value("ASAP"))
+            .andExpect(jsonPath("$.status").value("BOOKED"));
+    }
+
+    @Test
+    @Order(4)
     public void getAllTransactions() throws Exception {
         mvc.perform(MockMvcRequestBuilders.get("/accounts/" + account1.getUuid()
                     + "/transactions")
                 .accept(MediaType.APPLICATION_JSON)
                 .characterEncoding("UTF-8"))
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$[0].description").value("Almost 50 Euros"));
+            .andExpect(jsonPath("$[0].description").exists())
+            .andExpect(jsonPath("$[1].description").exists());
     }
 }
