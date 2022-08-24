@@ -6,6 +6,7 @@ import static org.assertj.core.api.Assertions.assertThatCode;
 import com.senacor.intermission.newjava.IntermissionNewJavaApplication;
 import com.senacor.intermission.newjava.model.Account;
 import com.senacor.intermission.newjava.model.Balance;
+import com.senacor.intermission.newjava.model.BaseCustomer;
 import com.senacor.intermission.newjava.model.Customer;
 import java.math.BigInteger;
 import org.junit.jupiter.api.*;
@@ -34,7 +35,7 @@ public class BalanceRepositoryIT {
 
     @BeforeAll
     void setup() {
-        this.customer = Customer.builder().build();
+        this.customer = BaseCustomer.builder().build();
         this.account = Account.builder()
             .accountNumber(BigInteger.valueOf(40))
             .iban("iban")

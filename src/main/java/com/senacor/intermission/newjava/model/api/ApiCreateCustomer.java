@@ -9,5 +9,6 @@ import java.time.LocalDate;
 public record ApiCreateCustomer(
     @NotBlank @Length(min = 2, max = 200) String prename,
     @NotBlank @Length(min = 2, max = 200) String lastname,
-    @NotNull LocalDate dateOfBirth) {
+    @NotNull LocalDate dateOfBirth,
+    @NotNull ApiCustomerType type) {
 }

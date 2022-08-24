@@ -1,10 +1,9 @@
 package com.senacor.intermission.newjava.handler;
 
+import com.senacor.intermission.newjava.exceptions.NoFurtherAccountAllowedException;
 import com.senacor.intermission.newjava.mapper.ApiAccountMapper;
 import com.senacor.intermission.newjava.mapper.ApiCustomerMapper;
-import com.senacor.intermission.newjava.model.Account;
-import com.senacor.intermission.newjava.model.Balance;
-import com.senacor.intermission.newjava.model.Customer;
+import com.senacor.intermission.newjava.model.*;
 import com.senacor.intermission.newjava.model.api.ApiAccount;
 import com.senacor.intermission.newjava.model.api.ApiCreateCustomer;
 import com.senacor.intermission.newjava.model.api.ApiCustomer;
@@ -32,9 +31,13 @@ public class CustomerHandler {
 
     @Transactional
     public ApiCustomer createCustomer(ApiCreateCustomer request) {
-        Customer customer = apiCustomerMapper.toOwnCustomer(request);
+        // Switch Expression
+        Customer customer = switch(request.type()) {
+            case BASE: yield apiCustomerMapper.toOwnBaseCustomer(request);
+            case PREMIUM: yield apiCustomerMapper.toOwnPremiumCustomer(request);
+        };
         customerService.createCustomer(customer);
-        return apiCustomerMapper.toApiCustomer(customer);
+        return apiCustomerMapper.toApiCustomer(customer, request.type());
     }
 
     @Transactional
@@ -54,6 +57,10 @@ public class CustomerHandler {
     @Transactional
     public ApiAccount createAccount(UUID customerUuid) {
         Customer customer = customerService.findCustomer(customerUuid);
+        if (!isAdditionalAccountAllowed(customer)) {
+            throw new NoFurtherAccountAllowedException(customerUuid);
+        }
+
         BigInteger accountNumber = accountService.getNewAccountNumber();
         String iban = ibanService.generateIban(accountNumber);
         Balance balance = Balance.builder().valueInCents(BigInteger.ZERO).build();
@@ -66,5 +73,15 @@ public class CustomerHandler {
         balance.setAccount(account);
         Account result = accountService.createAccount(account);
         return apiAccountMapper.toApiAccount(result);
+    }
+
+    private boolean isAdditionalAccountAllowed(Customer customer) {
+        // Preview-Feature (Pattern Matching for switch)
+        return switch (customer) {
+            case PremiumCustomer premiumCustomer -> true;
+            case BaseCustomer baseCustomer -> customer.getAccounts().size() < baseCustomer.maxNumberOfAccounts();
+            // Customer cannot be a sealed class (JPA does not like it). Thus, we need a Customer case here.
+            case Customer other -> false;
+        };
     }
 }

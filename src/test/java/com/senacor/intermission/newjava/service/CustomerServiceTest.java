@@ -1,6 +1,7 @@
 package com.senacor.intermission.newjava.service;
 
 import com.senacor.intermission.newjava.exceptions.CustomerNotFoundException;
+import com.senacor.intermission.newjava.model.BaseCustomer;
 import com.senacor.intermission.newjava.model.Customer;
 import com.senacor.intermission.newjava.repository.CustomerRepository;
 import org.junit.jupiter.api.Test;
@@ -27,7 +28,7 @@ public class CustomerServiceTest {
     @Mock
     private CustomerRepository customerRepository;
 
-    private final Customer customer = Customer.builder()
+    private final Customer customer = BaseCustomer.builder()
         .prename("Foo")
         .lastname("Bar")
         .dateOfBirth(LocalDate.of(1970, 1, 1))
