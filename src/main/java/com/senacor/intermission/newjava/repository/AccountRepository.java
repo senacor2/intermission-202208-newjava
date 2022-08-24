@@ -10,10 +10,11 @@ import org.springframework.lang.NonNull;
 
 public interface AccountRepository extends JpaRepository<Account, BigInteger> {
 
-    @Query(value = "SELECT NEXT VALUE FOR ACCOUNT_NUMBER FROM dual;", nativeQuery = true)
+    @Query(value = """
+        SELECT NEXT VALUE FOR ACCOUNT_NUMBER
+        FROM dual""", nativeQuery = true)
     BigInteger getNextAccountNumber();
 
     Optional<Account> findByUuid(@NonNull UUID uuid);
     Optional<Account> findByIban(@NonNull String iban);
-
 }
