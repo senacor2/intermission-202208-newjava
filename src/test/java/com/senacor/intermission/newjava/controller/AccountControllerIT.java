@@ -91,12 +91,14 @@ public class AccountControllerIT {
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .characterEncoding("UTF-8")
-                .content("{ " +
-                    "\"amountInCents\": 4999," +
-                    "\"description\": \"Almost 50 Euros\"," +
-                    "\"receiverIban\": \"" + account2.getIban() + "\"," +
-                    "\"transactionDate\": \"" + LocalDateTime.now() + "\"" +
-                    "}"))
+                .content("""
+                    {
+                        "amountInCents": 4999,
+                        "description": "Almost 50 Euros",
+                        "receiverIban": "%s",
+                        "transactionDate": "%s"
+                    }""".formatted(account2.getIban(), LocalDateTime.now())
+                ))
             .andExpect(status().isCreated())
             .andExpect(jsonPath("$.senderIban").value(account1.getIban()))
             .andExpect(jsonPath("$.receiverIban").value(account2.getIban()))
@@ -114,11 +116,13 @@ public class AccountControllerIT {
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .characterEncoding("UTF-8")
-                .content("{ " +
-                    "\"amountInCents\": 4999," +
-                    "\"description\": \"Almost 50 Euros\"," +
-                    "\"transactionDate\": \"" + LocalDateTime.now() + "\"" +
-                    "}"))
+                .content("""
+                    {
+                        "amountInCents": 4999,
+                        "description": "Almost 50 Euros",
+                        "transactionDate": "%s"
+                    }""".formatted(LocalDateTime.now())
+                ))
             .andExpect(status().isBadRequest());
     }
 
@@ -130,12 +134,14 @@ public class AccountControllerIT {
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .characterEncoding("UTF-8")
-                .content("{ " +
-                    "\"amountInCents\": 5999," +
-                    "\"description\": \"ASAP\"," +
-                    "\"receiverIban\": \"" + account2.getIban() + "\"," +
-                    "\"transactionDate\": \"" + LocalDateTime.now() + "\"" +
-                    "}"))
+                .content("""
+                    {
+                        "amountInCents": 5999,
+                        "description": "ASAP",
+                        "receiverIban": "%s",
+                        "transactionDate": "%s"
+                    }""".formatted(account2.getIban(), LocalDateTime.now())
+                ))
             .andExpect(status().isCreated())
             .andExpect(jsonPath("$.senderIban").value(account1.getIban()))
             .andExpect(jsonPath("$.receiverIban").value(account2.getIban()))

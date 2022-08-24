@@ -31,17 +31,19 @@ public class CustomerControllerIT {
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .characterEncoding("UTF-8")
-                .content("{ " +
-                    "\"prename\": \"Foo\", " +
-                    "\"lastname\": \"Bar\", " +
-                    "\"dateOfBirth\": \"1970-01-01\"" +
-                    "}"))
+                .content("""
+                    {
+                        "prename": "Foo",
+                        "lastname": "Bar",
+                        "dateOfBirth": "1970-01-01"
+                    }"""))
             .andExpect(status().isCreated())
-            .andExpect(content().json("{ " +
-                "\"prename\": \"Foo\", " +
-                "\"lastname\": \"Bar\", " +
-                "\"dateOfBirth\": \"1970-01-01\"" +
-                "}"))
+            .andExpect(content().json("""
+                    {
+                        "prename": "Foo",
+                        "lastname": "Bar",
+                        "dateOfBirth": "1970-01-01"
+                    }"""))
             .andExpect(jsonPath("$.uuid").exists())
             .andReturn();
         customerUuid = JsonPath.read(result.getResponse().getContentAsString(), "$.uuid");
@@ -54,10 +56,11 @@ public class CustomerControllerIT {
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .characterEncoding("UTF-8")
-                .content("{ " +
-                    "\"prename\": \"t\", " +
-                    "\"lastname\": \"s\"" +
-                    "}"))
+                .content("""
+                    {
+                        "prename": "t",
+                        "lastname": "s"
+                    }"""))
             .andExpect(status().isBadRequest());
     }
 
