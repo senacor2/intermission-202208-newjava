@@ -1,0 +1,5 @@
+INSERT INTO TRANSACTION_STATUS (NAME)
+VALUES ('INITIAL'),
+       ('PENDING'),
+       ('BOOKED'),
+       ('REJECTED');

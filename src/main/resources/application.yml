@@ -5,7 +5,7 @@ server:
   port: 8081
 spring:
   datasource:
-    driverClassName: org.h2.Driver
+#    driverClassName: org.h2.Driver
     hikari:
       auto-commit: false
       pool-name: Hikari

@@ -17,7 +17,11 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(
     classes = IntermissionNewJavaApplication.class,
-    webEnvironment = SpringBootTest.WebEnvironment.NONE
+    webEnvironment = SpringBootTest.WebEnvironment.NONE,
+    properties = {
+        "spring.datasource.url=jdbc:tc:postgresql:14-alpine://newjava",
+        "spring.flyway.locations=classpath:db.postgres"
+    }
 )
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
