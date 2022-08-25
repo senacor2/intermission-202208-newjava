@@ -11,6 +11,7 @@ import com.senacor.intermission.newjava.model.api.ApiAccount;
 import com.senacor.intermission.newjava.model.api.ApiCreateTransaction;
 import com.senacor.intermission.newjava.model.api.ApiTransaction;
 import com.senacor.intermission.newjava.service.AccountService;
+import com.senacor.intermission.newjava.service.PushNotificationService;
 import com.senacor.intermission.newjava.service.TransactionService;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -40,6 +41,8 @@ public class AccountHandlerTest {
     private TransactionService transactionService;
     @Spy
     private ApiTransactionMapper apiTransactionMapper = new ApiTransactionMapperImpl();
+    @Mock
+    private PushNotificationService pushNotificationService;
 
     @Test
     public void getAccount() {
@@ -87,6 +90,7 @@ public class AccountHandlerTest {
         verify(accountService).getAccount(accountUuid);
         verify(accountService).getAccountByIban("iban2");
         verify(transactionService).createTransaction(any());
+        verify(pushNotificationService).sendPushNotification(any());
     }
 
     @Test
