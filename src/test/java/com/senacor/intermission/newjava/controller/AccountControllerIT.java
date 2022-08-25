@@ -2,6 +2,7 @@ package com.senacor.intermission.newjava.controller;
 
 import com.senacor.intermission.newjava.model.Account;
 import com.senacor.intermission.newjava.model.Balance;
+import com.senacor.intermission.newjava.model.BaseCustomer;
 import com.senacor.intermission.newjava.model.Customer;
 import com.senacor.intermission.newjava.repository.AccountRepository;
 import com.senacor.intermission.newjava.repository.CustomerRepository;
@@ -38,7 +39,7 @@ public class AccountControllerIT {
 
     @BeforeAll
     void setup() {
-        this.customer = Customer.builder().build();
+        this.customer = BaseCustomer.builder().build();
         customerRepository.save(customer);
         this.account1 = Account.builder()
             .customer(customer)

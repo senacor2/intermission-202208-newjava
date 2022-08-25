@@ -35,14 +35,16 @@ public class CustomerControllerIT {
                     {
                         "prename": "Foo",
                         "lastname": "Bar",
-                        "dateOfBirth": "1970-01-01"
+                        "dateOfBirth": "1970-01-01",
+                        "type": "BASE"
                     }"""))
             .andExpect(status().isCreated())
             .andExpect(content().json("""
                     {
                         "prename": "Foo",
                         "lastname": "Bar",
-                        "dateOfBirth": "1970-01-01"
+                        "dateOfBirth": "1970-01-01",
+                        "type": "BASE"
                     }"""))
             .andExpect(jsonPath("$.uuid").exists())
             .andReturn();
