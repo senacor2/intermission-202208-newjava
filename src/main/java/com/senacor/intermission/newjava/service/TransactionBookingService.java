@@ -77,10 +77,12 @@ public class TransactionBookingService {
 
         if (transactionAmount.compareTo(BigInteger.valueOf(1_000_000L)) > 0) {
             transaction.setStatus(TransactionStatus.REJECTED);
+            transactionRepository.save(transaction).block();
             return;
         }
         if (senderBalanceAmountNew.signum() < 0 || receiverBalanceAmountNew.signum() < 0) {
             transaction.setStatus(TransactionStatus.REJECTED);
+            transactionRepository.save(transaction).block();
             return;
         }
 
