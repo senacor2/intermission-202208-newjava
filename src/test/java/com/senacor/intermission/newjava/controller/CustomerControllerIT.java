@@ -1,5 +1,8 @@
 package com.senacor.intermission.newjava.controller;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.asyncDispatch;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
 import com.jayway.jsonpath.JsonPath;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,9 +12,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.asyncDispatch;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -41,8 +41,7 @@ public class CustomerControllerIT {
             .andExpect(request().asyncStarted())
             .andReturn();
         result = mvc.perform(asyncDispatch(result))
-            // TODO Why not created anymore?
-            .andExpect(status().isOk())
+            .andExpect(status().isCreated())
             .andExpect(content().json("""
                 {
                     "prename": "Foo",
@@ -77,8 +76,7 @@ public class CustomerControllerIT {
                 .characterEncoding("UTF-8"))
             .andReturn();
         result = mvc.perform(asyncDispatch(result))
-            // TODO Why not created anymore?
-            .andExpect(status().isOk())
+            .andExpect(status().isCreated())
             .andExpect(jsonPath("$.accountNumber").exists())
             .andExpect(jsonPath("$.iban").exists())
             .andExpect(jsonPath("$.uuid").exists())
@@ -106,7 +104,6 @@ public class CustomerControllerIT {
                 .characterEncoding("UTF-8"))
             .andReturn();
         mvc.perform(asyncDispatch(result))
-            // TODO Why not 'no content' anymore?
-            .andExpect(status().isOk());
+            .andExpect(status().isNoContent());
     }
 }

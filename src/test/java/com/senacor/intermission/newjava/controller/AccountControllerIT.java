@@ -1,11 +1,16 @@
 package com.senacor.intermission.newjava.controller;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.asyncDispatch;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
 import com.senacor.intermission.newjava.model.Account;
 import com.senacor.intermission.newjava.model.Balance;
 import com.senacor.intermission.newjava.model.Customer;
 import com.senacor.intermission.newjava.repository.AccountRepository;
 import com.senacor.intermission.newjava.repository.BalanceRepository;
 import com.senacor.intermission.newjava.repository.CustomerRepository;
+import java.math.BigInteger;
+import java.time.LocalDateTime;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -14,12 +19,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-
-import java.math.BigInteger;
-import java.time.LocalDateTime;
-
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.asyncDispatch;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -108,8 +107,7 @@ public class AccountControllerIT {
             .andExpect(request().asyncStarted())
             .andReturn();
         mvc.perform(asyncDispatch(result))
-            // TODO Why not created anymore?
-            .andExpect(status().isOk())
+            .andExpect(status().isCreated())
             .andExpect(jsonPath("$.senderIban").value(account1.getIban()))
             .andExpect(jsonPath("$.receiverIban").value(account2.getIban()))
             .andExpect(jsonPath("$.amountInCents").value("4999"))
@@ -157,8 +155,7 @@ public class AccountControllerIT {
             .andExpect(request().asyncStarted())
             .andReturn();
         mvc.perform(asyncDispatch(result))
-            // TODO Why not created anymore?
-            .andExpect(status().isOk())
+            .andExpect(status().isCreated())
             .andExpect(jsonPath("$.senderIban").value(account1.getIban()))
             .andExpect(jsonPath("$.receiverIban").value(account2.getIban()))
             .andExpect(jsonPath("$.amountInCents").value("5999"))

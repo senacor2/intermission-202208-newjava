@@ -1,10 +1,15 @@
 package com.senacor.intermission.newjava.repository;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
+
 import com.senacor.intermission.newjava.IntermissionNewJavaApplication;
-import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.TestInstance;
-import org.junit.jupiter.api.TestMethodOrder;
+import com.senacor.intermission.newjava.model.Account;
+import com.senacor.intermission.newjava.model.Customer;
+import java.math.BigInteger;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
@@ -16,7 +21,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class AccountRepositoryIT {
-/*
+
     @Autowired
     AccountRepository uut;
 
@@ -29,12 +34,12 @@ public class AccountRepositoryIT {
     @BeforeAll
     void setup() {
         this.customer = Customer.builder().build();
-        customerRepository.save(customer);
+        customerRepository.save(customer).block();
     }
 
     @AfterAll
     void cleanup() {
-        customerRepository.delete(customer);
+        customerRepository.delete(customer).block();
     }
 
     @Test
@@ -43,24 +48,24 @@ public class AccountRepositoryIT {
         Account account = Account.builder()
             .accountNumber(BigInteger.valueOf(20))
             .iban(accountIban)
-            .customer(customer)
+            .customerId(customer.getId())
             .build();
-        Assertions.assertThatCode(() -> uut.save(account)).doesNotThrowAnyException();
+        assertThatCode(() -> uut.save(account).block()).doesNotThrowAnyException();
     }
 
     @Test
     @Order(2)
     void givenExistingIban__findByIban__returnsAccount() {
-        assertThat(uut.findByIban(accountIban))
+        assertThat(uut.findByIban(accountIban).blockOptional())
             .isPresent()
             .get()
-            .returns(customer, Account::getCustomer);
+            .returns(customer.getId(), Account::getCustomerId);
     }
 
     @Test
     @Order(3)
     void givenUnknownIban__findByIban__returnsEmpty() {
-        assertThat(uut.findByIban("unknown"))
+        assertThat(uut.findByIban("unknown").blockOptional())
             .isEmpty();
-    }*/
+    }
 }
