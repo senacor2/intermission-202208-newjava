@@ -4,65 +4,46 @@ import com.senacor.intermission.newjava.handler.AccountHandler;
 import com.senacor.intermission.newjava.model.api.ApiAccount;
 import com.senacor.intermission.newjava.model.api.ApiCreateTransaction;
 import com.senacor.intermission.newjava.model.api.ApiTransaction;
-import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/accounts")
 @RequiredArgsConstructor
-public class AccountController {
+public class AccountController implements AccountApi {
 
     private final AccountHandler accountHandler;
 
-    @GetMapping(
-        value = "/{uuid}",
-        produces = MediaType.APPLICATION_JSON_VALUE
-    )
-    @Valid
-    public ResponseEntity<ApiAccount> getAccount(@PathVariable(value = "uuid") UUID accountUuid) {
+    @Override
+    public ResponseEntity<ApiAccount> getAccount(UUID accountUuid) {
         ApiAccount result = accountHandler.getAccount(accountUuid);
         return ResponseEntity.ok(result);
     }
 
-    @GetMapping(
-        value = "/{uuid}/transactions",
-        produces = MediaType.APPLICATION_JSON_VALUE
-    )
-    @Valid
+    @Override
     public ResponseEntity<List<ApiTransaction>> getAllTransactions(
-        @PathVariable(value = "uuid") UUID accountUuid
+        UUID accountUuid
     ) {
         List<ApiTransaction> result = accountHandler.getAllTransactions(accountUuid);
         return ResponseEntity.ok(result);
     }
 
-    @PostMapping(
-        value = "/{uuid}/transactions",
-        produces = MediaType.APPLICATION_JSON_VALUE
-    )
-    @Valid
+    @Override
     public ResponseEntity<ApiTransaction> createTransaction(
-        @PathVariable(value = "uuid") UUID accountUuid,
-        @Valid @RequestBody ApiCreateTransaction request
+        UUID accountUuid,
+        ApiCreateTransaction request
     ) {
         ApiTransaction result = accountHandler.createTransaction(accountUuid, request);
         return new ResponseEntity<>(result, HttpStatus.CREATED);
     }
 
-    @PostMapping(
-        value = "/{uuid}/transactions/instant",
-        produces = MediaType.APPLICATION_JSON_VALUE
-    )
-    @Valid
+    @Override
     public ResponseEntity<ApiTransaction> createInstantTransaction(
-        @PathVariable(value = "uuid") UUID accountUuid,
-        @Valid @RequestBody ApiCreateTransaction request
+        UUID accountUuid,
+        ApiCreateTransaction request
     ) {
         ApiTransaction result = accountHandler.createInstantTransaction(accountUuid, request);
         return new ResponseEntity<>(result, HttpStatus.CREATED);

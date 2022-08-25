@@ -1,5 +1,8 @@
 package com.senacor.intermission.newjava.handler;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.*;
+
 import com.senacor.intermission.newjava.exceptions.IbanNotFoundException;
 import com.senacor.intermission.newjava.mapper.ApiAccountMapper;
 import com.senacor.intermission.newjava.mapper.ApiAccountMapperImpl;
@@ -12,6 +15,10 @@ import com.senacor.intermission.newjava.model.api.ApiCreateTransaction;
 import com.senacor.intermission.newjava.model.api.ApiTransaction;
 import com.senacor.intermission.newjava.service.AccountService;
 import com.senacor.intermission.newjava.service.TransactionService;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -19,14 +26,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class AccountHandlerTest {
@@ -48,7 +47,7 @@ public class AccountHandlerTest {
         doReturn(account).when(accountService).getAccount(accountUuid);
 
         ApiAccount result = accountHandler.getAccount(accountUuid);
-        assertThat(result.uuid()).isEqualTo(accountUuid);
+        assertThat(result.getUuid()).isEqualTo(accountUuid);
         verify(accountService).getAccount(accountUuid);
     }
 
@@ -74,15 +73,15 @@ public class AccountHandlerTest {
         doReturn(account).when(accountService).getAccount(accountUuid);
         Account receiverAccount = Account.builder().iban("iban2").build();
         doReturn(Optional.of(receiverAccount)).when(accountService).getAccountByIban("iban2");
-        ApiCreateTransaction createTransaction = new ApiCreateTransaction("iban2", null, null, null);
+        ApiCreateTransaction createTransaction = new ApiCreateTransaction().receiverIban("iban2");
         doAnswer(invocation -> {
             Transaction transaction = invocation.getArgument(0);
             return transaction;
         }).when(transactionService).createTransaction(any());
 
         ApiTransaction result = accountHandler.createTransaction(accountUuid, createTransaction);
-        assertThat(result.senderIban()).isEqualTo("iban1");
-        assertThat(result.receiverIban()).isEqualTo("iban2");
+        assertThat(result.getSenderIban()).isEqualTo("iban1");
+        assertThat(result.getReceiverIban()).isEqualTo("iban2");
 
         verify(accountService).getAccount(accountUuid);
         verify(accountService).getAccountByIban("iban2");
@@ -95,7 +94,7 @@ public class AccountHandlerTest {
         UUID accountUuid = account.getUuid();
         doReturn(account).when(accountService).getAccount(accountUuid);
         doReturn(Optional.empty()).when(accountService).getAccountByIban("iban2");
-        ApiCreateTransaction createTransaction = new ApiCreateTransaction("iban2", null, null, null);
+        ApiCreateTransaction createTransaction = new ApiCreateTransaction().receiverIban("iban2");
 
         Throwable throwable = Assertions.catchThrowable(() -> accountHandler.createTransaction(accountUuid, createTransaction));
         assertThat(throwable).isInstanceOf(IbanNotFoundException.class);

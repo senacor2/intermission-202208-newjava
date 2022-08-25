@@ -1,5 +1,9 @@
 package com.senacor.intermission.newjava.handler;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+
 import com.senacor.intermission.newjava.mapper.ApiAccountMapper;
 import com.senacor.intermission.newjava.mapper.ApiAccountMapperImpl;
 import com.senacor.intermission.newjava.mapper.ApiCustomerMapper;
@@ -12,19 +16,14 @@ import com.senacor.intermission.newjava.model.api.ApiCustomer;
 import com.senacor.intermission.newjava.service.AccountService;
 import com.senacor.intermission.newjava.service.CustomerService;
 import com.senacor.intermission.newjava.service.IbanService;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.*;
-import org.mockito.junit.jupiter.MockitoExtension;
-
 import java.math.BigInteger;
 import java.util.Collection;
 import java.util.Set;
 import java.util.UUID;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.*;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 public class CustomerHandlerTest {
@@ -46,7 +45,7 @@ public class CustomerHandlerTest {
 
     @Test
     public void createCustomer() {
-        ApiCreateCustomer createRequest = new ApiCreateCustomer(null, null, null);
+        ApiCreateCustomer createRequest = new ApiCreateCustomer();
         ApiCustomer result = customerHandler.createCustomer(createRequest);
         assertThat(result).isNotNull();
         verify(customerService).createCustomer(any());
@@ -94,8 +93,8 @@ public class CustomerHandlerTest {
         }).when(accountService).createAccount(any());
 
         ApiAccount result = customerHandler.createAccount(customerUuid);
-        assertThat(result.balanceInCents()).isEqualTo(0L);
-        assertThat(result.iban()).isEqualTo(iban);
+        assertThat(result.getBalanceInCents()).isEqualTo(0L);
+        assertThat(result.getIban()).isEqualTo(iban);
 
         verify(customerService).findCustomer(customerUuid);
         verify(accountService).getNewAccountNumber();

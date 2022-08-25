@@ -72,8 +72,8 @@ public class AccountHandler {
 
     private Transaction createTransactionInternal(UUID accountUuid, ApiCreateTransaction request) {
         Account senderAccount = accountService.getAccount(accountUuid);
-        Account receiverAccount = accountService.getAccountByIban(request.receiverIban())
-            .orElseThrow(() -> new IbanNotFoundException(request.receiverIban()));
+        Account receiverAccount = accountService.getAccountByIban(request.getReceiverIban())
+            .orElseThrow(() -> new IbanNotFoundException(request.getReceiverIban()));
 
         Transaction transaction = apiTransactionMapper.createTransaction(request, senderAccount, receiverAccount);
         return transactionService.createTransaction(transaction);

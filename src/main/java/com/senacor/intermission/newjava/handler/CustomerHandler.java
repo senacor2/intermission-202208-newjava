@@ -11,14 +11,13 @@ import com.senacor.intermission.newjava.model.api.ApiCustomer;
 import com.senacor.intermission.newjava.service.AccountService;
 import com.senacor.intermission.newjava.service.CustomerService;
 import com.senacor.intermission.newjava.service.IbanService;
+import java.math.BigInteger;
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.math.BigInteger;
-import java.util.Collection;
-import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -44,11 +43,11 @@ public class CustomerHandler {
     }
 
     @Transactional(readOnly = true)
-    public Collection<UUID> getAllAccounts(UUID customerUuid) {
+    public List<UUID> getAllAccounts(UUID customerUuid) {
         Customer customer = customerService.findCustomer(customerUuid);
         return customer.getAccounts().stream()
             .map(Account::getUuid)
-            .collect(Collectors.toSet());
+            .collect(Collectors.toList());
     }
 
     @Transactional
