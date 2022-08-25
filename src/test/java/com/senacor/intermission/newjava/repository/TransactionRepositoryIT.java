@@ -2,6 +2,7 @@ package com.senacor.intermission.newjava.repository;
 
 import com.senacor.intermission.newjava.IntermissionNewJavaApplication;
 import com.senacor.intermission.newjava.model.Account;
+import com.senacor.intermission.newjava.model.BaseCustomer;
 import com.senacor.intermission.newjava.model.Customer;
 import com.senacor.intermission.newjava.model.Transaction;
 import java.math.BigInteger;
@@ -35,7 +36,7 @@ public class TransactionRepositoryIT {
 
     @BeforeAll
     void setup() {
-        this.customer = Customer.builder().build();
+        this.customer = BaseCustomer.builder().build();
         this.account1 = Account.builder()
             .accountNumber(BigInteger.valueOf(10))
             .iban("iban1")

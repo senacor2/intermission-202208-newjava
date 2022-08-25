@@ -7,5 +7,6 @@ public record ApiCustomer(
     UUID uuid,
     String prename,
     String lastname,
-    LocalDate dateOfBirth) {
+    LocalDate dateOfBirth,
+    ApiCustomerType type) {
 }

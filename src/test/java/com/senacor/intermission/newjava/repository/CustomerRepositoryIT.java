@@ -1,6 +1,7 @@
 package com.senacor.intermission.newjava.repository;
 
 import com.senacor.intermission.newjava.IntermissionNewJavaApplication;
+import com.senacor.intermission.newjava.model.BaseCustomer;
 import com.senacor.intermission.newjava.model.Customer;
 import java.util.HashSet;
 import java.util.Set;
@@ -33,14 +34,14 @@ public class CustomerRepositoryIT {
 
     @Test
     void givenCustomer__save__doesNotThrow() {
-        Customer customer = Customer.builder().build();
+        Customer customer = BaseCustomer.builder().build();
         Assertions.assertThatCode(() -> uut.save(customer)).doesNotThrowAnyException();
         cleanup.add(customer);
     }
 
     @Test
     void givenCustomer__findByUuid() {
-        Customer customer = Customer.builder().build();
+        Customer customer = BaseCustomer.builder().build();
         uut.save(customer);
         Assertions.assertThat(uut.findByUuid(customer.getUuid()).get()).isEqualTo(customer);
         cleanup.add(customer);

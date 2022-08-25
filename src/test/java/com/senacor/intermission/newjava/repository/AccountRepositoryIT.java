@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.senacor.intermission.newjava.IntermissionNewJavaApplication;
 import com.senacor.intermission.newjava.model.Account;
+import com.senacor.intermission.newjava.model.BaseCustomer;
 import com.senacor.intermission.newjava.model.Customer;
 import java.math.BigInteger;
 import org.assertj.core.api.Assertions;
@@ -33,7 +34,7 @@ public class AccountRepositoryIT {
 
     @BeforeAll
     void setup() {
-        this.customer = Customer.builder().build();
+        this.customer = BaseCustomer.builder().build();
         customerRepository.save(customer);
     }
 
