@@ -9,15 +9,14 @@ import com.senacor.intermission.newjava.model.api.ApiAccount;
 import com.senacor.intermission.newjava.model.api.ApiCreateTransaction;
 import com.senacor.intermission.newjava.model.api.ApiTransaction;
 import com.senacor.intermission.newjava.model.enums.TransactionStatus;
-import com.senacor.intermission.newjava.service.AccountService;
-import com.senacor.intermission.newjava.service.DbTransactionalService;
-import com.senacor.intermission.newjava.service.IbanService;
-import com.senacor.intermission.newjava.service.TransactionService;
+import com.senacor.intermission.newjava.service.*;
+
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import javax.swing.*;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,6 +31,7 @@ public class AccountHandler {
     private final TransactionService transactionService;
     private final IbanService ibanService;
     private final DbTransactionalService dbTransactionalService;
+    private final PushNotificationService pushNotificationService;
 
     @Transactional(readOnly = true)
     public ApiAccount getAccount(UUID accountUuid) {
@@ -76,6 +76,9 @@ public class AccountHandler {
             .orElseThrow(() -> new IbanNotFoundException(request.receiverIban()));
 
         Transaction transaction = apiTransactionMapper.createTransaction(request, senderAccount, receiverAccount);
-        return transactionService.createTransaction(transaction);
+        transaction = transactionService.createTransaction(transaction);
+        // This call is executed asynchronously
+        pushNotificationService.sendPushNotification(transaction.getUuid());
+        return transaction;
     }
 }
