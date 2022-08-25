@@ -53,6 +53,11 @@
       <version>1.4.2.Final</version>
     </dependency>
     <dependency>
+      <groupId>org.openapitools</groupId>
+      <artifactId>jackson-databind-nullable</artifactId>
+      <version>0.2.3</version>
+    </dependency>
+    <dependency>
       <groupId>io.r2dbc</groupId>
       <artifactId>r2dbc-h2</artifactId>
       <version>1.0.0.RC1</version>
@@ -119,6 +124,52 @@
             </path>
           </annotationProcessorPaths>
         </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.openapitools</groupId>
+        <artifactId>openapi-generator-maven-plugin</artifactId>
+        <version>6.0.1</version>
+        <executions>
+          <execution>
+            <id>Api</id>
+            <goals>
+              <goal>generate</goal>
+            </goals>
+            <configuration>
+              <inputSpec>${project.basedir}/swagger/api.yml</inputSpec>
+              <generatorName>spring</generatorName>
+              <generateApis>true</generateApis>
+              <generateApiTests>false</generateApiTests>
+              <generateModelTests>false</generateModelTests>
+              <modelPackage>com.senacor.intermission.newjava.model.api</modelPackage>
+              <apiPackage>com.senacor.intermission.newjava.controller</apiPackage>
+              <modelNamePrefix>Api</modelNamePrefix>
+              <configOptions>
+                <title>Api</title>
+                <library>spring-boot</library>
+                <useSpringBoot3>true</useSpringBoot3>
+                <serializableModel>true</serializableModel>
+                <dateLibrary>java8</dateLibrary>
+                <delegatePattern>true</delegatePattern>
+                <useTags>true</useTags>
+                <useBeanValidation>true</useBeanValidation>
+                <performBeanValidation>true</performBeanValidation>
+                <interfaceOnly>true</interfaceOnly>
+                <useOptional>true</useOptional>
+                <serializableModel>true</serializableModel>
+                <documentationProvider>none</documentationProvider>
+                <useSwaggerUI>false</useSwaggerUI>
+                <annotationLibrary>none</annotationLibrary>
+              </configOptions>
+              <typeMappings>
+                <typeMapping>OffsetDateTime=LocalDateTime</typeMapping>
+              </typeMappings>
+              <importMappings>
+                <importMapping>java.time.OffsetDateTime=java.time.LocalDateTime</importMapping>
+              </importMappings>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>
