@@ -4,55 +4,56 @@ import com.senacor.intermission.newjava.handler.CustomerHandler;
 import com.senacor.intermission.newjava.model.api.ApiAccount;
 import com.senacor.intermission.newjava.model.api.ApiCreateCustomer;
 import com.senacor.intermission.newjava.model.api.ApiCustomer;
-import jakarta.validation.Valid;
-import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ServerWebExchange;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @RestController
-@RequestMapping("/customers")
 @RequiredArgsConstructor
-public class CustomerController {
+public class CustomerController implements CustomerApi {
 
     private final CustomerHandler customerHandler;
 
-    @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    public Mono<ResponseEntity<ApiCustomer>> createCustomer(@Valid @RequestBody ApiCreateCustomer request) {
-        return customerHandler.createCustomer(request)
+    @Override
+    public Mono<ResponseEntity<ApiCustomer>> createCustomer(
+        Mono<ApiCreateCustomer> apiCreateCustomer,
+        ServerWebExchange exchange
+    ) {
+        return apiCreateCustomer
+            .flatMap(customerHandler::createCustomer)
             .map(ResponseEntity.status(HttpStatus.CREATED)::body);
     }
 
-    @DeleteMapping(
-        value = "/{customerUuid}",
-        produces = MediaType.APPLICATION_JSON_VALUE
-    )
-    public Mono<ResponseEntity<Void>> deleteCustomer(@PathVariable(name = "customerUuid") UUID customerUuid) {
+    @Override
+    public Mono<ResponseEntity<Void>> deleteCustomer(
+        UUID customerUuid,
+        ServerWebExchange exchange
+    ) {
         return customerHandler.deleteCustomer(customerUuid)
             .then(Mono.just(ResponseEntity.status(HttpStatus.NO_CONTENT).build()));
     }
 
-    @GetMapping(
-        value = "/{customerUuid}/accounts",
-        produces = MediaType.APPLICATION_JSON_VALUE
-    )
-    public Mono<ResponseEntity<List<UUID>>> getAllAccounts(@PathVariable(value = "customerUuid") UUID customerUuid) {
-        return customerHandler.getAllAccounts(customerUuid)
-            .collect(Collectors.toList())
-            .map(ResponseEntity.status(HttpStatus.OK)::body);
+    @Override
+    public Mono<ResponseEntity<Flux<UUID>>> getAllAccounts(
+        UUID customerUuid,
+        ServerWebExchange exchange
+    ) {
+        Flux<UUID> result = customerHandler.getAllAccounts(customerUuid);
+        return Mono.just(ResponseEntity.status(HttpStatus.OK).body(result));
     }
 
-    @PostMapping(
-        value = "/{customerUuid}/accounts",
-        produces = MediaType.APPLICATION_JSON_VALUE
-    )
-    public Mono<ResponseEntity<ApiAccount>> createAccount(@PathVariable(value = "customerUuid") UUID customerUuid) {
+    @Override
+    public Mono<ResponseEntity<ApiAccount>> createAccount(
+        UUID customerUuid,
+        ServerWebExchange exchange
+    ) {
         return customerHandler.createAccount(customerUuid)
             .map(ResponseEntity.status(HttpStatus.CREATED)::body);
     }
+
 }

@@ -4,66 +4,53 @@ import com.senacor.intermission.newjava.handler.AccountHandler;
 import com.senacor.intermission.newjava.model.api.ApiAccount;
 import com.senacor.intermission.newjava.model.api.ApiCreateTransaction;
 import com.senacor.intermission.newjava.model.api.ApiTransaction;
-import jakarta.validation.Valid;
-import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ServerWebExchange;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @RestController
-@RequestMapping("/accounts")
 @RequiredArgsConstructor
-public class AccountController {
+public class AccountController implements AccountApi {
 
     private final AccountHandler accountHandler;
 
-    @GetMapping(
-        value = "/{uuid}",
-        produces = MediaType.APPLICATION_JSON_VALUE
-    )
-    public Mono<ResponseEntity<ApiAccount>> getAccount(@PathVariable(value = "uuid") UUID accountUuid) {
+    @Override
+    public Mono<ResponseEntity<ApiAccount>> getAccount(UUID accountUuid, ServerWebExchange exchange) {
         return accountHandler.getAccount(accountUuid)
             .map(ResponseEntity.status(HttpStatus.OK)::body);
     }
 
-    @GetMapping(
-        value = "/{uuid}/transactions",
-        produces = MediaType.APPLICATION_JSON_VALUE
-    )
-    public Mono<ResponseEntity<List<ApiTransaction>>> getAllTransactions(
-        @PathVariable(value = "uuid") UUID accountUuid
-    ) {
-        return accountHandler.getAllTransactions(accountUuid)
-            .collect(Collectors.toList())
-            .map(ResponseEntity.status(HttpStatus.OK)::body);
+    @Override
+    public Mono<ResponseEntity<Flux<ApiTransaction>>> getAllTransactions(UUID accountUuid, ServerWebExchange exchange) {
+        Flux<ApiTransaction> body = accountHandler.getAllTransactions(accountUuid);
+        return Mono.just(ResponseEntity.status(HttpStatus.OK).body(body));
     }
 
-    @PostMapping(
-        value = "/{uuid}/transactions",
-        produces = MediaType.APPLICATION_JSON_VALUE
-    )
+    @Override
     public Mono<ResponseEntity<ApiTransaction>> createTransaction(
-        @PathVariable(value = "uuid") UUID accountUuid,
-        @Valid @RequestBody ApiCreateTransaction request
+        UUID accountUuid,
+        Mono<ApiCreateTransaction> apiCreateTransaction,
+        ServerWebExchange exchange
     ) {
-        return accountHandler.createTransaction(accountUuid, request)
+        return apiCreateTransaction
+            .flatMap(it -> accountHandler.createTransaction(accountUuid, it))
             .map(ResponseEntity.status(HttpStatus.CREATED)::body);
     }
 
-    @PostMapping(
-        value = "/{uuid}/transactions/instant",
-        produces = MediaType.APPLICATION_JSON_VALUE
-    )
+    @Override
     public Mono<ResponseEntity<ApiTransaction>> createInstantTransaction(
-        @PathVariable(value = "uuid") UUID accountUuid,
-        @Valid @RequestBody ApiCreateTransaction request
+        UUID accountUuid,
+        Mono<ApiCreateTransaction> apiCreateTransaction,
+        ServerWebExchange exchange
     ) {
-        return accountHandler.createInstantTransaction(accountUuid, request)
+        return apiCreateTransaction
+            .flatMap(it -> accountHandler.createInstantTransaction(accountUuid, it))
             .map(ResponseEntity.status(HttpStatus.CREATED)::body);
     }
+
 }

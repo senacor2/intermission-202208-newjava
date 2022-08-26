@@ -38,11 +38,6 @@
       <artifactId>spring-boot-starter-webflux</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-web</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
       <groupId>org.flywaydb</groupId>
       <artifactId>flyway-core</artifactId>
     </dependency>
@@ -148,6 +143,7 @@
                 <title>Api</title>
                 <library>spring-boot</library>
                 <useSpringBoot3>true</useSpringBoot3>
+                <reactive>true</reactive>
                 <serializableModel>true</serializableModel>
                 <dateLibrary>java8</dateLibrary>
                 <delegatePattern>true</delegatePattern>

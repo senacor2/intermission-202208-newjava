@@ -1,17 +1,13 @@
 package com.senacor.intermission.newjava.controller;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.asyncDispatch;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-
 import com.jayway.jsonpath.JsonPath;
+import java.nio.charset.StandardCharsets;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.reactive.server.WebTestClient;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -20,7 +16,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 public class CustomerControllerIT {
 
     @Autowired
-    private MockMvc mvc;
+    private WebTestClient client;
 
     private String customerUuid;
     private String accountUuid;
@@ -28,82 +24,83 @@ public class CustomerControllerIT {
     @Test
     @Order(1)
     public void createCustomer() throws Exception {
-        MvcResult result = mvc.perform(MockMvcRequestBuilders.post("/customers")
+        byte[] body = client
+            .post()
+                .uri("/customers")
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .characterEncoding("UTF-8")
-                .content("""
+                .bodyValue("""
                     {
-                        "prename": "Foo",
-                        "lastname": "Bar",
-                        "dateOfBirth": "1970-01-01"
-                    }"""))
-            .andExpect(request().asyncStarted())
-            .andReturn();
-        result = mvc.perform(asyncDispatch(result))
-            .andExpect(status().isCreated())
-            .andExpect(content().json("""
-                {
-                    "prename": "Foo",
-                    "lastname": "Bar",
-                    "dateOfBirth": "1970-01-01"
-                }"""))
-            .andExpect(jsonPath("$.uuid").exists())
-            .andReturn();
-        customerUuid = JsonPath.read(result.getResponse().getContentAsString(), "$.uuid");
+                      "prename": "Foo",
+                      "lastname": "Bar",
+                      "dateOfBirth": "1970-01-01"
+                    }""")
+            .exchange()
+                .expectStatus().isCreated()
+                .expectBody()
+                    .json("""
+                        {
+                            "prename": "Foo",
+                            "lastname": "Bar",
+                            "dateOfBirth": "1970-01-01"
+                        }""")
+                    .jsonPath("$.uuid").exists()
+            .returnResult().getResponseBody();
+        customerUuid = JsonPath.read(new String(body, StandardCharsets.UTF_8), "$.uuid");
     }
 
     @Test
     @Order(2)
     public void createCustomer_invalidData() throws Exception {
-        mvc.perform(MockMvcRequestBuilders.post("/customers")
+        client
+            .post()
+                .uri("/customers")
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .characterEncoding("UTF-8")
-                .content("""
+                .bodyValue("""
                     {
                         "prename": "t",
                         "lastname": "s"
-                    }"""))
-            .andExpect(status().isBadRequest());
+                    }""")
+            .exchange()
+                .expectStatus().isBadRequest();
     }
 
     @Test
     @Order(3)
     public void createAccount() throws Exception {
-        MvcResult result = mvc.perform(MockMvcRequestBuilders.post("/customers/" + customerUuid
-                    + "/accounts")
-                .characterEncoding("UTF-8"))
-            .andReturn();
-        result = mvc.perform(asyncDispatch(result))
-            .andExpect(status().isCreated())
-            .andExpect(jsonPath("$.accountNumber").exists())
-            .andExpect(jsonPath("$.iban").exists())
-            .andExpect(jsonPath("$.uuid").exists())
-            .andExpect(jsonPath("$.balanceInCents").value("0"))
-            .andReturn();
-        accountUuid = JsonPath.read(result.getResponse().getContentAsString(), "$.uuid");
+        byte[] body = client
+            .post()
+                .uri("/customers/{uuid}/accounts", customerUuid)
+            .exchange()
+                .expectStatus().isCreated()
+                .expectBody()
+                    .jsonPath("$.accountNumber").exists()
+                    .jsonPath("$.iban").exists()
+                    .jsonPath("$.uuid").exists()
+                    .jsonPath("$.balanceInCents").isEqualTo("0")
+            .returnResult().getResponseBody();
+        accountUuid = JsonPath.read(new String(body, StandardCharsets.UTF_8), "$.uuid");
     }
 
     @Test
     @Order(4)
     public void getAccounts() throws Exception {
-        MvcResult result = mvc.perform(MockMvcRequestBuilders.get("/customers/" + customerUuid
-                    + "/accounts")
-                .characterEncoding("UTF-8"))
-            .andReturn();
-        mvc.perform(asyncDispatch(result))
-            .andExpect(status().isOk())
-            .andExpect(content().json("[" + accountUuid + "]"));
+        client
+            .get()
+                .uri("/customers/{uuid}/accounts", customerUuid)
+            .exchange()
+                .expectStatus().isOk()
+                .expectBody().json("[" + accountUuid + "]");
     }
 
     @Test
     @Order(5)
     public void deleteCustomer() throws Exception {
-        MvcResult result = mvc.perform(MockMvcRequestBuilders.delete("/customers/" + customerUuid)
-                .characterEncoding("UTF-8"))
-            .andReturn();
-        mvc.perform(asyncDispatch(result))
-            .andExpect(status().isNoContent());
+        client
+            .delete()
+                .uri("/customers/{uuid}", customerUuid)
+            .exchange()
+                .expectStatus().isNoContent();
     }
 }

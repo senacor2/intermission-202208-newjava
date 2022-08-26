@@ -68,8 +68,8 @@ public class AccountHandler {
     }
 
     private Mono<Transaction> createTransactionInternal(UUID accountUuid, ApiCreateTransaction request) {
-        return accountService.getAccountByIban(request.receiverIban())
-            .switchIfEmpty(Mono.error(new IbanNotFoundException(request.receiverIban())))
+        return accountService.getAccountByIban(request.getReceiverIban())
+            .switchIfEmpty(Mono.error(new IbanNotFoundException(request.getReceiverIban())))
             .zipWith(
                 accountService.getAccount(accountUuid),
                 (receiver, sender) -> apiTransactionMapper.createTransaction(request, sender, receiver)

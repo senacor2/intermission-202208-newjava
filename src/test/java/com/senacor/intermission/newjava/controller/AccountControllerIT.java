@@ -1,8 +1,5 @@
 package com.senacor.intermission.newjava.controller;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.asyncDispatch;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-
 import com.senacor.intermission.newjava.model.Account;
 import com.senacor.intermission.newjava.model.Balance;
 import com.senacor.intermission.newjava.model.Customer;
@@ -16,9 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.reactive.server.WebTestClient;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -27,7 +22,8 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 public class AccountControllerIT {
 
     @Autowired
-    private MockMvc mvc;
+    private WebTestClient client;
+
     @Autowired
     CustomerRepository customerRepository;
     @Autowired
@@ -75,107 +71,105 @@ public class AccountControllerIT {
     @Test
     @Order(1)
     public void getAccount() throws Exception {
-        MvcResult result = mvc.perform(MockMvcRequestBuilders.get("/accounts/" + account1.getUuid())
+        client
+            .get()
+                .uri("/accounts/{uuid}", account1.getUuid())
                 .accept(MediaType.APPLICATION_JSON)
-                .characterEncoding("UTF-8"))
-            .andExpect(request().asyncStarted())
-            .andReturn();
-        mvc.perform(asyncDispatch(result))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.accountNumber").value(account1.getAccountNumber().longValue()))
-            .andExpect(jsonPath("$.iban").value(account1.getIban()))
-            .andExpect(jsonPath("$.uuid").value(account1.getUuid().toString()))
-            .andExpect(jsonPath("$.balanceInCents").value("20000"));
+            .exchange()
+                .expectStatus().isOk()
+                .expectBody()
+                    .jsonPath("$.accountNumber").isEqualTo(account1.getAccountNumber().longValue())
+                    .jsonPath("$.iban").isEqualTo(account1.getIban())
+                    .jsonPath("$.uuid").isEqualTo(account1.getUuid().toString())
+                    .jsonPath("$.balanceInCents").isEqualTo("20000");
     }
 
     @Test
     @Order(2)
     public void createTransaction() throws Exception {
-        MvcResult result = mvc.perform(MockMvcRequestBuilders.post("/accounts/" + account1.getUuid()
-                    + "/transactions")
+        client
+            .post()
+                .uri("/accounts/{uuid}/transactions", account1.getUuid())
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .characterEncoding("UTF-8")
-                .content("""
+                .bodyValue("""
                     {
                         "amountInCents": 4999,
                         "description": "Almost 50 Euros",
                         "receiverIban": "%s",
                         "transactionDate": "%s"
                     }""".formatted(account2.getIban(), LocalDateTime.now())
-                ))
-            .andExpect(request().asyncStarted())
-            .andReturn();
-        mvc.perform(asyncDispatch(result))
-            .andExpect(status().isCreated())
-            .andExpect(jsonPath("$.senderIban").value(account1.getIban()))
-            .andExpect(jsonPath("$.receiverIban").value(account2.getIban()))
-            .andExpect(jsonPath("$.amountInCents").value("4999"))
-            .andExpect(jsonPath("$.transactionDate").exists())
-            .andExpect(jsonPath("$.description").value("Almost 50 Euros"))
-            .andExpect(jsonPath("$.status").value("PENDING"));
+                )
+            .exchange()
+                .expectStatus().isCreated()
+                .expectBody()
+                    .jsonPath("$.senderIban").isEqualTo(account1.getIban())
+                    .jsonPath("$.receiverIban").isEqualTo(account2.getIban())
+                    .jsonPath("$.amountInCents").isEqualTo("4999")
+                    .jsonPath("$.transactionDate").exists()
+                    .jsonPath("$.description").isEqualTo("Almost 50 Euros")
+                    .jsonPath("$.status").isEqualTo("PENDING");
     }
 
 
     @Test
     @Order(3)
     public void createTransaction_invalidRequest() throws Exception {
-        mvc.perform(MockMvcRequestBuilders.post("/accounts/" + account1.getUuid()
-                    + "/transactions")
+        client
+            .post()
+                .uri("/accounts/{uuid}/transactions", account1.getUuid())
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .characterEncoding("UTF-8")
-                .content("""
+                .bodyValue("""
                     {
                         "amountInCents": 4999,
                         "description": "Almost 50 Euros",
                         "transactionDate": "%s"
                     }""".formatted(LocalDateTime.now())
-                ))
-            .andExpect(status().isBadRequest());
+                )
+            .exchange()
+                .expectStatus().isBadRequest();
     }
 
 
     @Test
     @Order(4)
     public void createInstantTransaction() throws Exception {
-        MvcResult result = mvc.perform(MockMvcRequestBuilders.post("/accounts/" + account1.getUuid()
-                    + "/transactions/instant")
+        client
+            .post()
+                .uri("/accounts/{uuid}/transactions/instant", account1.getUuid())
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .characterEncoding("UTF-8")
-                .content("""
+                .bodyValue("""
                     {
-                        "amountInCents": 5999,
-                        "description": "ASAP",
+                        "amountInCents": 4999,
+                        "description": "Almost 50 Euros",
                         "receiverIban": "%s",
                         "transactionDate": "%s"
                     }""".formatted(account2.getIban(), LocalDateTime.now())
-                ))
-            .andExpect(request().asyncStarted())
-            .andReturn();
-        mvc.perform(asyncDispatch(result))
-            .andExpect(status().isCreated())
-            .andExpect(jsonPath("$.senderIban").value(account1.getIban()))
-            .andExpect(jsonPath("$.receiverIban").value(account2.getIban()))
-            .andExpect(jsonPath("$.amountInCents").value("5999"))
-            .andExpect(jsonPath("$.transactionDate").exists())
-            .andExpect(jsonPath("$.description").value("ASAP"))
-            .andExpect(jsonPath("$.status").value("BOOKED"));
+                )
+            .exchange()
+                .expectStatus().isCreated()
+                .expectBody()
+                    .jsonPath("$.senderIban").isEqualTo(account1.getIban())
+                    .jsonPath("$.receiverIban").isEqualTo(account2.getIban())
+                    .jsonPath("$.amountInCents").isEqualTo("4999")
+                    .jsonPath("$.transactionDate").exists()
+                    .jsonPath("$.description").isEqualTo("Almost 50 Euros")
+                    .jsonPath("$.status").isEqualTo("BOOKED");
     }
 
     @Test
     @Order(5)
     public void getAllTransactions() throws Exception {
-        MvcResult result = mvc.perform(MockMvcRequestBuilders.get("/accounts/" + account1.getUuid()
-                    + "/transactions")
+        client
+            .get()
+                .uri("/accounts/{uuid}/transactions", account1.getUuid())
                 .accept(MediaType.APPLICATION_JSON)
-                .characterEncoding("UTF-8"))
-            .andExpect(request().asyncStarted())
-            .andReturn();
-        mvc.perform(asyncDispatch(result))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$[0].description").exists())
-            .andExpect(jsonPath("$[1].description").exists());
+            .exchange()
+                .expectStatus().isOk()
+                .expectBody()
+                    .jsonPath("$[0].description").exists()
+                    .jsonPath("$[1].description").exists();
     }
 }
