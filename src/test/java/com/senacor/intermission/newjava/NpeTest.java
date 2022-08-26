@@ -2,8 +2,6 @@ package com.senacor.intermission.newjava;
 
 import org.junit.jupiter.api.Test;
 
-import java.util.List;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 
@@ -20,16 +18,24 @@ public class NpeTest {
             Cannot invoke "java.lang.Integer.intValue()" because "index" is null""");
 
         npe = catchThrowable(() -> {
-            List.of('a', 'b', 'c').indexOf(index);
+            var b = new char[]{'a', 'b', 'c'}[index];
         });
         assertThat(npe).isInstanceOf(NullPointerException.class);
-        assertThat(npe).hasMessage(null);
+        assertThat(npe).hasMessage("""
+            Cannot invoke "java.lang.Integer.intValue()" because "index" is null""");
     }
 
     @Test
     public void nullReference() {
         Person person = null;
         Throwable npe = catchThrowable(() -> {
+            person.name = "Fun Guy";
+        });
+        assertThat(npe).isInstanceOf(NullPointerException.class);
+        assertThat(npe).hasMessage("""
+            Cannot assign field "name" because "person" is null""");
+
+        npe = catchThrowable(() -> {
             String name = person.name;
         });
         assertThat(npe).isInstanceOf(NullPointerException.class);
